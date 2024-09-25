@@ -1,0 +1,31 @@
+import pygame
+
+pygame.init()
+screen_width = 800
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Retro Racer")
+screen.fill((255,255,255))
+track = pygame.image.load("straight 2.png")
+track = pygame.transform.scale(track, (screen_width, screen_height))
+
+car = pygame.image.load("pitstop_car_1.png")
+car = pygame.transform.scale(car, (50,100))
+car = pygame.transform.rotate(car, 180)
+#screen.blit(track, (0,0))
+
+#pygame.display.flip()
+
+run = True
+while run == True:
+
+    screen.blit(track, (0, 0))
+    screen.blit(car, (400,300))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+
+    pygame.display.update()
+
+pygame.quit()
