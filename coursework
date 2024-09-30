@@ -1,31 +1,75 @@
 import pygame
+#game initialisation
+import pygame
 
-pygame.init()
+FPS = 60
 screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
-screen.fill((255,255,255))
-track = pygame.image.load("straight 2.png")
-track = pygame.transform.scale(track, (screen_width, screen_height))
+clock = pygame.time.Clock()
 
-car = pygame.image.load("pitstop_car_1.png")
-car = pygame.transform.scale(car, (50,100))
-car = pygame.transform.rotate(car, 180)
-#screen.blit(track, (0,0))
+#images
+up_straight = pygame.image.load("straight 2.png")
+along_straight = pygame.image.load("straight 1.png")
+t_three = pygame.image.load("curve 3.png")
+t_two = pygame.image.load("curve 2.png")
+t_one = pygame.image.load("curve 1.png")
+t_four = pygame.image.load("curve 4.png")
 
-#pygame.display.flip()
+#draw an image onto the screen in the desired position
+#must have image variable before calling the function
+#however this will scale the image
+def draw_image(image, x_position, y_position):
+    image = pygame.transform.scale(image, (screen_width, screen_height))
+    screen.blit(image, (x+x_position, y+y_position))
 
-run = True
-while run == True:
+#drawing a track
+def draw_all():
+    draw_image(up_straight, 0, 0)
+    draw_image(t_three, 0, -600)
+    draw_image(t_two, 800, -600)
+    draw_image(t_three, 800, -1200)
+    draw_image(t_one, 1600, -1200)
+    draw_image(up_straight, 1600, -600)
+    draw_image(up_straight, 1600, 0)
+    draw_image(up_straight, 1600, 600)
+    draw_image(up_straight, 1600, 1200)
+    draw_image(t_two, 1600, 1800)
+    draw_image(t_four, 800, 1800)
+    draw_image(up_straight, 800, 1200)
+    draw_image(t_one, 800, 600)
+    draw_image(t_four, 0, 600)
 
-    screen.blit(track, (0, 0))
-    screen.blit(car, (400,300))
+x = 0
+y = 0
+
+running = True
+while running == True:
+
+    #sets frame rate to 60
+    clock.tick(FPS)
+    keys = pygame.key.get_pressed()
+
+    #moving the background
+    if keys[pygame.K_w]:
+        y += 10
+    elif keys[pygame.K_s]:
+        y -= 10
+    elif keys[pygame.K_a]:
+        x += 10
+    elif keys[pygame.K_d]:
+        x -= 10
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            running = False
 
+    screen.fill((255, 255, 255))
+    #draws the track onto the screen
+    draw_all()
+
+    pygame.display.flip()
     pygame.display.update()
 
 pygame.quit()
