@@ -1,4 +1,5 @@
 import pygame
+import math
 #game initialisation
 import pygame
 
@@ -19,7 +20,7 @@ t_four = pygame.image.load("curve 4.png")
 
 car_one = pygame.image.load("pitstop_car_1.png")
 car_one = pygame.transform.scale(car_one, (40, 80))
-car_one = pygame.transform.rotate(car_one, 180)
+car_one = pygame.transform.rotate(car_one, math.pi)
 #draw an image onto the screen in the desired position
 #must have image variable before calling the function
 #however this will scale the image
@@ -55,13 +56,13 @@ while running == True:
         y += 10
     elif keys[pygame.K_s]:
         y -= 10
-        car_one = pygame.transform.rotate(car_one, 180)
+        car_one = pygame.transform.rotate(car_one, math.pi)
     elif keys[pygame.K_a]:
         x += 10
-        car_one = pygame.transform.rotate(car_one, 270)
+        car_one = pygame.transform.rotate(car_one, 3/2*math.pi)
     elif keys[pygame.K_d]:
         x -= 10
-        car_one = pygame.transform.rotate(car_one, 90)
+        car_one = pygame.transform.rotate(car_one, 1/2math.pi)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
