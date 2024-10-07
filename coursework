@@ -1,5 +1,3 @@
-import pygame
-import math
 #game initialisation
 import pygame
 
@@ -20,7 +18,7 @@ t_four = pygame.image.load("curve 4.png")
 
 car_one = pygame.image.load("pitstop_car_1.png")
 car_one = pygame.transform.scale(car_one, (40, 80))
-car_one = pygame.transform.rotate(car_one, math.pi)
+car_one = pygame.transform.rotate(car_one, 180)
 #draw an image onto the screen in the desired position
 #must have image variable before calling the function
 #however this will scale the image
@@ -46,23 +44,43 @@ def draw_all():
 
 x = 0
 y = 0
+direction = 0
 
 running = True
 while running == True:
 
     clock.tick(FPS)
     keys = pygame.key.get_pressed()
+    start_direction = direction
+    # Potential issue - the more I press the keys the more lagged, slow and broken the game is.
     if keys[pygame.K_w]:
         y += 10
-    elif keys[pygame.K_s]:
+        direction = 0
+    if keys[pygame.K_s]:
         y -= 10
-        car_one = pygame.transform.rotate(car_one, math.pi)
-    elif keys[pygame.K_a]:
+        direction = 180
+    if keys[pygame.K_a]:
         x += 10
-        car_one = pygame.transform.rotate(car_one, 3/2*math.pi)
-    elif keys[pygame.K_d]:
+        direction = 90
+    if keys[pygame.K_d]:
         x -= 10
-        car_one = pygame.transform.rotate(car_one, 1/2math.pi)
+        direction = 270
+
+    if keys[pygame.K_w] and keys[pygame.K_a]:
+            direction = 45
+    if keys[pygame.K_s] and keys[pygame.K_a]:
+            direction = 135
+    if keys[pygame.K_w] and keys[pygame.K_d]:
+            direction = 315
+    if keys[pygame.K_s] and keys[pygame.K_d]:
+            direction = 225
+
+    direction_change = direction - start_direction
+    car_one = pygame.transform.rotate(car_one, direction_change)
+
+    car_rect = car_one.get_rect(center = (400,300))
+    #if I decide to do diagonals then change direction to 0-360
+    #and remove the multiple. Also change the 'ifs' back to 'elifs'
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -70,7 +88,7 @@ while running == True:
 
     screen.fill((255, 255, 255))
     draw_all()
-    screen.blit(car_one, (400, 300))
+    screen.blit(car_one, car_rect)
 
     pygame.display.flip()
     pygame.display.update()
