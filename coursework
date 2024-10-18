@@ -19,6 +19,8 @@ t_four = pygame.image.load("curve 4.png")
 car_one = pygame.image.load("pitstop_car_1.png")
 car_one = pygame.transform.scale(car_one, (40, 80))
 car_one = pygame.transform.rotate(car_one, 180)
+CONST_CAR_ONE = car_one
+
 #draw an image onto the screen in the desired position
 #must have image variable before calling the function
 #however this will scale the image
@@ -47,12 +49,12 @@ y = 0
 direction = 0
 
 running = True
-while running == True:
+while running:
 
     clock.tick(FPS)
     keys = pygame.key.get_pressed()
     start_direction = direction
-    # Potential issue - the more I press the keys the more lagged, slow and broken the game is.
+
     if keys[pygame.K_w]:
         y += 10
         direction = 0
@@ -66,21 +68,38 @@ while running == True:
         x -= 10
         direction = 270
 
-    if keys[pygame.K_w] and keys[pygame.K_a]:
-            direction = 45
-    if keys[pygame.K_s] and keys[pygame.K_a]:
-            direction = 135
     if keys[pygame.K_w] and keys[pygame.K_d]:
-            direction = 315
+        direction = 315
+        y -= 10
+        y += 1/2 ** 0.5 * 10
+        x += 10
+        x -= 1/2 ** 0.5 * 10
     if keys[pygame.K_s] and keys[pygame.K_d]:
-            direction = 225
+        direction = 225
+        y += 10
+        y -= 1/2 ** 0.5 * 10
+        x += 10
+        x -= 1/2 ** 0.5 * 10
+    if keys[pygame.K_s] and keys[pygame.K_a]:
+        direction = 135
+        y += 10
+        y -= 1/2 ** 0.5 * 10
+        x -= 10
+        x += 1/2 ** 0.5 * 10
+    if keys[pygame.K_w] and keys[pygame.K_a]:
+        direction = 45
+        y -= 10
+        y += 1/2 ** 0.5 * 10
+        x -= 10
+        x += 1/2 ** 0.5 * 10
+
 
     direction_change = direction - start_direction
-    car_one = pygame.transform.rotate(car_one, direction_change)
+    if direction_change != 0:
+        car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
+
 
     car_rect = car_one.get_rect(center = (400,300))
-    #if I decide to do diagonals then change direction to 0-360
-    #and remove the multiple. Also change the 'ifs' back to 'elifs'
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
