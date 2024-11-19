@@ -1,6 +1,7 @@
-#game initialisation
 import pygame
 
+#initial setup of screen
+pygame.init()
 FPS = 60
 screen_width = 800
 screen_height = 600
@@ -8,108 +9,155 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
 clock = pygame.time.Clock()
 
-#images
-up_straight = pygame.image.load("straight 2.png")
-along_straight = pygame.image.load("straight 1.png")
-t_three = pygame.image.load("curve 3.png")
-t_two = pygame.image.load("curve 2.png")
-t_one = pygame.image.load("curve 1.png")
-t_four = pygame.image.load("curve 4.png")
+#blits text onto the screen
+def draw_text(x_pos, y_pos, size, color, message=''):
+    font = pygame.font.SysFont(None, size)
+    text = font.render(message, True, color)
+    screen.blit(text, (x_pos, y_pos))
 
-car_one = pygame.image.load("pitstop_car_1.png")
-car_one = pygame.transform.scale(car_one, (40, 80))
-car_one = pygame.transform.rotate(car_one, 180)
-CONST_CAR_ONE = car_one
+#game states class
+class Game:
+    def __init__(self):
+        self.start_screen()
 
-#draw an image onto the screen in the desired position
-#must have image variable before calling the function
-#however this will scale the image
-def draw_image(image, x_position, y_position):
-    image = pygame.transform.scale(image, (screen_width, screen_height))
-    screen.blit(image, (x+x_position, y+y_position))
+    #start screen
+    def start_screen(self):
+        running = True
+        while running:
+            screen.fill((0, 0, 255))
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_m]:
+                self.menu_screen()
+            if keys[pygame.K_p]:
+                self.playing_screen()
+            if keys[pygame.K_q]:
+                running = False
 
-def draw_all():
-    draw_image(up_straight, 0, 0)
-    draw_image(t_three, 0, -600)
-    draw_image(t_two, 800, -600)
-    draw_image(t_three, 800, -1200)
-    draw_image(t_one, 1600, -1200)
-    draw_image(up_straight, 1600, -600)
-    draw_image(up_straight, 1600, 0)
-    draw_image(up_straight, 1600, 600)
-    draw_image(up_straight, 1600, 1200)
-    draw_image(t_two, 1600, 1800)
-    draw_image(t_four, 800, 1800)
-    draw_image(up_straight, 800, 1200)
-    draw_image(t_one, 800, 600)
-    draw_image(t_four, 0, 600)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
 
-x = 0
-y = 0
-direction = 0
+            pygame.display.flip()
+            pygame.display.update()
 
-running = True
-while running:
+    #playing screen
+    def playing_screen(self, running = True):
+        keys = pygame.key.get_pressed()
+        up_straight = pygame.image.load("straight 2.png")
+        along_straight = pygame.image.load("straight 1.png")
+        t_three = pygame.image.load("curve 3.png")
+        t_two = pygame.image.load("curve 2.png")
+        t_one = pygame.image.load("curve 1.png")
+        t_four = pygame.image.load("curve 4.png")
+        grass = pygame.image.load("grass.png")
 
-    clock.tick(FPS)
-    keys = pygame.key.get_pressed()
-    start_direction = direction
+        car_one = pygame.image.load("pitstop_car_1.png")
+        car_one = pygame.transform.scale(car_one, (40, 80))
+        car_one = pygame.transform.rotate(car_one, 180)
+        CONST_CAR_ONE = car_one
 
-    if keys[pygame.K_w]:
-        y += 10
+        # draw an image onto the screen in the desired position and scale it to fill the screen
+        def draw_image(image, x_position, y_position):
+            image = pygame.transform.scale(image, (screen_width, screen_height))
+            screen.blit(image, (x + x_position, y + y_position))
+
+        # possibly make a function that takes a list of images then prints it one after another (efficency)
+        def draw_all():
+            draw_image(up_straight, 0, 0)
+            draw_image(t_three, 0, -600)
+            draw_image(t_two, 800, -600)
+            draw_image(t_three, 800, -1200)
+            draw_image(t_one, 1600, -1200)
+            draw_image(up_straight, 1600, -600)
+            draw_image(up_straight, 1600, 0)
+            draw_image(up_straight, 1600, 600)
+            draw_image(up_straight, 1600, 1200)
+            draw_image(t_two, 1600, 1800)
+            draw_image(t_four, 800, 1800)
+            draw_image(up_straight, 800, 1200)
+            draw_image(t_one, 800, 600)
+            draw_image(t_four, 0, 600)
+            draw_image(grass, 800, 0)
+
+        x = 0
+        y = 0
         direction = 0
-    if keys[pygame.K_s]:
-        y -= 10
-        direction = 180
-    if keys[pygame.K_a]:
-        x += 10
-        direction = 90
-    if keys[pygame.K_d]:
-        x -= 10
-        direction = 270
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
 
-    if keys[pygame.K_w] and keys[pygame.K_d]:
-        direction = 315
-        y -= 10
-        y += 1/2 ** 0.5 * 10
-        x += 10
-        x -= 1/2 ** 0.5 * 10
-    if keys[pygame.K_s] and keys[pygame.K_d]:
-        direction = 225
-        y += 10
-        y -= 1/2 ** 0.5 * 10
-        x += 10
-        x -= 1/2 ** 0.5 * 10
-    if keys[pygame.K_s] and keys[pygame.K_a]:
-        direction = 135
-        y += 10
-        y -= 1/2 ** 0.5 * 10
-        x -= 10
-        x += 1/2 ** 0.5 * 10
-    if keys[pygame.K_w] and keys[pygame.K_a]:
-        direction = 45
-        y -= 10
-        y += 1/2 ** 0.5 * 10
-        x -= 10
-        x += 1/2 ** 0.5 * 10
+            clock.tick(FPS)
+            keys = pygame.key.get_pressed()
+            start_direction = direction
+
+            if keys[pygame.K_w]:
+                y += 10
+                direction = 0
+            if keys[pygame.K_s]:
+                y -= 10
+                direction = 180
+            if keys[pygame.K_a]:
+                x += 10
+                direction = 90
+            if keys[pygame.K_d]:
+                x -= 10
+                direction = 270
+
+            if keys[pygame.K_w] and keys[pygame.K_d]:
+                direction = 315
+                y -= 10
+                y += 1 / 2 ** 0.5 * 10
+                x += 10
+                x -= 1 / 2 ** 0.5 * 10
+            if keys[pygame.K_s] and keys[pygame.K_d]:
+                direction = 225
+                y += 10
+                y -= 1 / 2 ** 0.5 * 10
+                x += 10
+                x -= 1 / 2 ** 0.5 * 10
+            if keys[pygame.K_s] and keys[pygame.K_a]:
+                direction = 135
+                y += 10
+                y -= 1 / 2 ** 0.5 * 10
+                x -= 10
+                x += 1 / 2 ** 0.5 * 10
+            if keys[pygame.K_w] and keys[pygame.K_a]:
+                direction = 45
+                y -= 10
+                y += 1 / 2 ** 0.5 * 10
+                x -= 10
+                x += 1 / 2 ** 0.5 * 10
+
+            if keys[pygame.K_ESCAPE]:
+                self.menu_screen()
+
+            direction_change = direction - start_direction
+            if direction_change != 0:
+                car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
+
+            car_rect = car_one.get_rect(center=(400, 300))
+
+            screen.fill((255, 255, 255))
+            draw_all()
+            screen.blit(car_one, car_rect)
+
+            pygame.display.flip()
+            pygame.display.update()
 
 
-    direction_change = direction - start_direction
-    if direction_change != 0:
-        car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
+    #menu screen
+    def menu_screen(self, running = True):
+        while running:
+            screen.fill((255, 0, 0))
+            keys = pygame.key.get_pressed()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+            if keys[pygame.K_BACKSPACE]:
+                self.start_screen()
 
-
-    car_rect = car_one.get_rect(center = (400,300))
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    screen.fill((255, 255, 255))
-    draw_all()
-    screen.blit(car_one, car_rect)
-
-    pygame.display.flip()
-    pygame.display.update()
+            pygame.display.flip()
+            pygame.display.update()
 
 pygame.quit()
