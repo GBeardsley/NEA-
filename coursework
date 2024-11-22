@@ -92,42 +92,54 @@ class Game:
             start_direction = direction
 
             if keys[pygame.K_w]:
+                color_position = (400, 350)
                 y += 10
                 direction = 0
             if keys[pygame.K_s]:
+                color_position = (400, 250)
                 y -= 10
                 direction = 180
             if keys[pygame.K_a]:
+                color_position = (400, 250)
                 x += 10
                 direction = 90
             if keys[pygame.K_d]:
+                color_position = (350, 300)
                 x -= 10
                 direction = 270
 
             if keys[pygame.K_w] and keys[pygame.K_d]:
                 direction = 315
+                color_position = (400 - (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
                 y -= 10
                 y += 1 / 2 ** 0.5 * 10
                 x += 10
                 x -= 1 / 2 ** 0.5 * 10
             if keys[pygame.K_s] and keys[pygame.K_d]:
                 direction = 225
+                color_position = (400 - (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
                 y += 10
                 y -= 1 / 2 ** 0.5 * 10
                 x += 10
                 x -= 1 / 2 ** 0.5 * 10
             if keys[pygame.K_s] and keys[pygame.K_a]:
                 direction = 135
+                color_position = (400 + (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
                 y += 10
                 y -= 1 / 2 ** 0.5 * 10
                 x -= 10
                 x += 1 / 2 ** 0.5 * 10
             if keys[pygame.K_w] and keys[pygame.K_a]:
                 direction = 45
+                color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
                 y -= 10
                 y += 1 / 2 ** 0.5 * 10
                 x -= 10
                 x += 1 / 2 ** 0.5 * 10
+
+            if keys[pygame.K_e]:
+                color_position = int(color_position[0]), int(color_position[1])
+                print(screen.get_at(color_position))
 
             if keys[pygame.K_ESCAPE]:
                 self.menu_screen()
