@@ -168,11 +168,12 @@ class Game:
                 x_change *= 0.92
             if accel_y == 0:
                 y_change *= 0.92
-                
-            if x_change >= max_speed:
-                x_change = max_speed
-            if y_change >= max_speed:
-                y_change = max_speed
+
+            if abs(x_change) >= max_speed:  # If max_speed is exceeded.
+                # Normalize the x_change and multiply it with the max_speed.
+                x_change = x_change / abs(x_change) * max_speed
+            if abs(y_change) >= max_speed:
+                y_change = y_change / abs(y_change) * max_speed
 
             x += x_change  # Move the object.
             y += y_change
@@ -206,3 +207,4 @@ class Game:
 game = Game()
 
 pygame.quit()
+
