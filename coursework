@@ -9,29 +9,32 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
 clock = pygame.time.Clock()
 
-#blits text onto the screen
-def draw_text(x_pos, y_pos, size, color, message=''):
+
+def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
     text = font.render(message, True, color)
-    screen.blit(text, (x_pos, y_pos))
+    surface.blit(text, (x_pos, y_pos))
 
-#game states class
 class Game:
     def __init__(self):
         self.start_screen()
 
-    #start screen
     def start_screen(self):
         running = True
+
         while running:
-            screen.fill((0, 0, 255))
+            screen.fill((105, 228, 146))
+            draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
+            draw_text(350, 275,50,(61,79,31), screen, 'PLAY')
+            draw_text(345, 350, 50, (61, 79, 31), screen, 'MENU')
+            draw_text(350, 425, 50, (61, 79, 31), screen, 'QUIT')
             keys = pygame.key.get_pressed()
             if keys[pygame.K_m]:
                 self.menu_screen()
             if keys[pygame.K_p]:
                 self.playing_screen()
             if keys[pygame.K_q]:
-                running = False
+                pygame.quit()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -40,9 +43,7 @@ class Game:
             pygame.display.flip()
             pygame.display.update()
 
-    #playing screen
     def playing_screen(self, running = True):
-        keys = pygame.key.get_pressed()
         up_straight = pygame.image.load("straight 2.png")
         along_straight = pygame.image.load("straight 1.png")
         t_three = pygame.image.load("curve 3.png")
@@ -81,7 +82,13 @@ class Game:
 
         x = 0
         y = 0
+        x_change = 0
+        y_change = 0
+        accel_x = 0
+        accel_y = 0
+        color_position = (x, y)
         direction = 0
+
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -93,49 +100,46 @@ class Game:
 
             if keys[pygame.K_w]:
                 color_position = (400, 350)
-                y += 10
+                accel_y = 0.2
                 direction = 0
+
             if keys[pygame.K_s]:
                 color_position = (400, 250)
-                y -= 10
+                accel_y = -0.2
                 direction = 180
+
             if keys[pygame.K_a]:
-                color_position = (400, 250)
-                x += 10
+                color_position = (450, 300)
+                accel_x = 0.2
                 direction = 90
+
             if keys[pygame.K_d]:
                 color_position = (350, 300)
-                x -= 10
+                accel_x = -0.2
                 direction = 270
 
             if keys[pygame.K_w] and keys[pygame.K_d]:
                 direction = 315
                 color_position = (400 - (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
-                y -= 10
-                y += 1 / 2 ** 0.5 * 10
-                x += 10
-                x -= 1 / 2 ** 0.5 * 10
+                accel_x = -(0.2 * ((2 ** (1 / 2)) / 2))
+                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
+
             if keys[pygame.K_s] and keys[pygame.K_d]:
                 direction = 225
                 color_position = (400 - (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
-                y += 10
-                y -= 1 / 2 ** 0.5 * 10
-                x += 10
-                x -= 1 / 2 ** 0.5 * 10
+                accel_x = -(0.2 * ((2 ** (1 / 2)) / 2))
+                accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
+
             if keys[pygame.K_s] and keys[pygame.K_a]:
                 direction = 135
                 color_position = (400 + (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
-                y += 10
-                y -= 1 / 2 ** 0.5 * 10
-                x -= 10
-                x += 1 / 2 ** 0.5 * 10
+                accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
+                accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
             if keys[pygame.K_w] and keys[pygame.K_a]:
                 direction = 45
                 color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
-                y -= 10
-                y += 1 / 2 ** 0.5 * 10
-                x -= 10
-                x += 1 / 2 ** 0.5 * 10
+                accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
+                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
             if keys[pygame.K_e]:
                 color_position = int(color_position[0]), int(color_position[1])
@@ -150,6 +154,12 @@ class Game:
 
             car_rect = car_one.get_rect(center=(400, 300))
 
+            x_change += accel_x  # Accelerate.
+            y_change += accel_y
+
+            x += x_change  # Move the object.
+            y += y_change
+
             screen.fill((255, 255, 255))
             draw_all()
             screen.blit(car_one, car_rect)
@@ -158,11 +168,13 @@ class Game:
             pygame.display.update()
 
 
-    #menu screen
     def menu_screen(self, running = True):
         while running:
-            screen.fill((255, 0, 0))
+            screen.fill((105, 228, 146))
             keys = pygame.key.get_pressed()
+            draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
+            draw_text(350, 400, 50, (61, 79, 31), screen, 'BACK')
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -171,5 +183,7 @@ class Game:
 
             pygame.display.flip()
             pygame.display.update()
+
+game = Game()
 
 pygame.quit()
