@@ -86,6 +86,7 @@ class Game:
         y_change = 0
         accel_x = 0
         accel_y = 0
+        max_speed = 15
         color_position = (x, y)
         direction = 0
 
@@ -167,6 +168,11 @@ class Game:
                 x_change *= 0.92
             if accel_y == 0:
                 y_change *= 0.92
+                
+            if x_change >= max_speed:
+                x_change = max_speed
+            if y_change >= max_speed:
+                y_change = max_speed
 
             x += x_change  # Move the object.
             y += y_change
