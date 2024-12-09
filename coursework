@@ -90,9 +90,6 @@ class Game:
         direction = 0
 
         while running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
 
             clock.tick(FPS)
             keys = pygame.key.get_pressed()
@@ -145,6 +142,15 @@ class Game:
                 color_position = int(color_position[0]), int(color_position[1])
                 print(screen.get_at(color_position))
 
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                if event.type == pygame.KEYUP:
+                    if event.key in (pygame.K_d, pygame.K_a):
+                        accel_x = 0
+                    elif event.key in (pygame.K_w, pygame.K_s):
+                        accel_y = 0
+
             if keys[pygame.K_ESCAPE]:
                 self.menu_screen()
 
@@ -156,6 +162,11 @@ class Game:
 
             x_change += accel_x  # Accelerate.
             y_change += accel_y
+
+            if accel_x == 0:
+                x_change *= 0.92
+            if accel_y == 0:
+                y_change *= 0.92
 
             x += x_change  # Move the object.
             y += y_change
@@ -183,6 +194,8 @@ class Game:
 
             pygame.display.flip()
             pygame.display.update()
+
+
 
 game = Game()
 
