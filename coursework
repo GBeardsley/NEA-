@@ -44,15 +44,15 @@ class Game:
             pygame.display.update()
 
     def playing_screen(self, running = True):
-        up_straight = pygame.image.load("straight 2.png")
-        along_straight = pygame.image.load("straight 1.png")
-        t_three = pygame.image.load("curve 3.png")
-        t_two = pygame.image.load("curve 2.png")
-        t_one = pygame.image.load("curve 1.png")
-        t_four = pygame.image.load("curve 4.png")
-        grass = pygame.image.load("grass.png")
+        up_straight = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/straight 2.png")
+        along_straight = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/straight 1.png")
+        t_three = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 3.png")
+        t_two = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 2.png")
+        t_one = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 1.png")
+        t_four = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 4.png")
+        grass = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/grass.png")
 
-        car_one = pygame.image.load("pitstop_car_1.png")
+        car_one = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/pitstop_car_1.png")
         car_one = pygame.transform.scale(car_one, (40, 80))
         car_one = pygame.transform.rotate(car_one, 180)
         CONST_CAR_ONE = car_one
@@ -137,11 +137,14 @@ class Game:
                 direction = 45
                 color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
                 accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
-                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
-
-            if keys[pygame.K_e]:
-                color_position = int(color_position[0]), int(color_position[1])
-                print(screen.get_at(color_position))
+                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)            
+            
+            color_position = int(color_position[0]), int(color_position[1])
+            pixel_color = screen.get_at(color_position)
+            if pixel_color == (20, 160, 46, 255):
+                max_speed = 6
+            else:
+                max_speed = 15
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -161,7 +164,7 @@ class Game:
 
             car_rect = car_one.get_rect(center=(400, 300))
 
-            x_change += accel_x  # Accelerate.
+            x_change += accel_x  
             y_change += accel_y
 
             if accel_x == 0:
@@ -169,13 +172,14 @@ class Game:
             if accel_y == 0:
                 y_change *= 0.92
 
-            if abs(x_change) >= max_speed:  # If max_speed is exceeded.
-                # Normalize the x_change and multiply it with the max_speed.
+            if abs(x_change) >= max_speed:
                 x_change = x_change / abs(x_change) * max_speed
-            if abs(y_change) >= max_speed:
+                print('x')
+            elif abs(y_change) >= max_speed:
                 y_change = y_change / abs(y_change) * max_speed
+                print('y')
 
-            x += x_change  # Move the object.
+            x += x_change
             y += y_change
 
             screen.fill((255, 255, 255))
@@ -203,8 +207,6 @@ class Game:
             pygame.display.update()
 
 
-
 game = Game()
 
 pygame.quit()
-
