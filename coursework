@@ -25,9 +25,9 @@ class Game:
         while running:
             screen.fill((105, 228, 146))
             draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
-            draw_text(350, 275,50,(61,79,31), screen, 'PLAY')
-            draw_text(345, 350, 50, (61, 79, 31), screen, 'MENU')
-            draw_text(350, 425, 50, (61, 79, 31), screen, 'QUIT')
+            draw_text(260, 275,50,(61,79,31), screen, 'Press P to PLAY')
+            draw_text(230, 350, 50, (61, 79, 31), screen, 'Press M for the MENU')
+            draw_text(260, 425, 50, (61, 79, 31), screen, 'Press Q to QUIT')
             keys = pygame.key.get_pressed()
             if keys[pygame.K_m]:
                 self.menu_screen()
@@ -44,15 +44,17 @@ class Game:
             pygame.display.update()
 
     def playing_screen(self, running = True):
-        up_straight = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/straight 2.png")
-        along_straight = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/straight 1.png")
-        t_three = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 3.png")
-        t_two = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 2.png")
-        t_one = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 1.png")
-        t_four = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/curve 4.png")
-        grass = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/grass.png")
+        up_straight = pygame.image.load("straight 2.png")
+        along_straight = pygame.image.load("straight 1.png")
+        t_three = pygame.image.load("curve 3.png")
+        t_two = pygame.image.load("curve 2.png")
+        t_one = pygame.image.load("curve 1.png")
+        t_four = pygame.image.load("curve 4.png")
+        grass = pygame.image.load("grass.png")
+        tyre_wall = pygame.image.load("tyre wall - straight green.png")
+        tyre_wall = pygame.transform.scale(tyre_wall, (40, 600))
 
-        car_one = pygame.image.load("C:/Users/DGS_18BEARDSLEY.G/Downloads/pitstop_car_1.png")
+        car_one = pygame.image.load("pitstop_car_1.png")
         car_one = pygame.transform.scale(car_one, (40, 80))
         car_one = pygame.transform.rotate(car_one, 180)
         CONST_CAR_ONE = car_one
@@ -79,6 +81,18 @@ class Game:
             draw_image(t_one, 800, 600)
             draw_image(t_four, 0, 600)
             draw_image(grass, 800, 0)
+            screen.blit(tyre_wall, (x, y))
+            screen.blit(tyre_wall, (x, y - 600))
+            screen.blit(tyre_wall, (x, y + 600))
+            screen.blit(tyre_wall, (x, y + 1200))
+            screen.blit(tyre_wall, (x + 1600, y - 600))
+            screen.blit(tyre_wall, (x + 1600, y))
+            screen.blit(tyre_wall, (x + 1600, y + 600))
+            screen.blit(tyre_wall, (x + 1600, y + 1200))
+            screen.blit(tyre_wall, (x + 2360, y - 600))
+            screen.blit(tyre_wall, (x + 2360, y))
+            screen.blit(tyre_wall, (x + 2360, y + 600))
+            screen.blit(tyre_wall, (x + 2360, y + 1200))
 
         x = 0
         y = 0
@@ -96,6 +110,10 @@ class Game:
             keys = pygame.key.get_pressed()
             start_direction = direction
 
+            #code for key presses
+            #line1 - where to read the colour of the pixel from
+            #line2 - amending acceleration
+            #line3 - the way it is facing
             if keys[pygame.K_w]:
                 color_position = (400, 350)
                 accel_y = 0.2
@@ -137,18 +155,17 @@ class Game:
                 direction = 45
                 color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
                 accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
-                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)            
-            
-            color_position = int(color_position[0]), int(color_position[1])
-            pixel_color = screen.get_at(color_position)
-            if pixel_color == (20, 160, 46, 255):
-                max_speed = 6
-            else:
-                max_speed = 15
+                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
+
+            #prints the color at the corresponding position
+            if keys[pygame.K_e]:
+                color_position = int(color_position[0]), int(color_position[1])
+                print(screen.get_at(color_position))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+                #when no button is pressed the car decelerates
                 if event.type == pygame.KEYUP:
                     if event.key in (pygame.K_d, pygame.K_a):
                         accel_x = 0
@@ -164,21 +181,24 @@ class Game:
 
             car_rect = car_one.get_rect(center=(400, 300))
 
-            x_change += accel_x  
+            # Accelerate.
+            x_change += accel_x
             y_change += accel_y
 
+            #when the acceleration is 0 (when no button is pressed) x value decreases by 0.92 of current value
             if accel_x == 0:
                 x_change *= 0.92
             if accel_y == 0:
                 y_change *= 0.92
 
+            # If max_speed is exceeded.
+            # Normalize the x_change and multiply it with the max_speed.
             if abs(x_change) >= max_speed:
                 x_change = x_change / abs(x_change) * max_speed
-                print('x')
-            elif abs(y_change) >= max_speed:
+            if abs(y_change) >= max_speed:
                 y_change = y_change / abs(y_change) * max_speed
-                print('y')
 
+            # Move the object.
             x += x_change
             y += y_change
 
@@ -195,7 +215,7 @@ class Game:
             screen.fill((105, 228, 146))
             keys = pygame.key.get_pressed()
             draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
-            draw_text(350, 400, 50, (61, 79, 31), screen, 'BACK')
+            draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -203,8 +223,10 @@ class Game:
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
 
+
             pygame.display.flip()
             pygame.display.update()
+
 
 
 game = Game()
