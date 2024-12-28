@@ -1,7 +1,10 @@
-#game initialisation
-import pygame
-pygame.font.init()
+#add gravel and rest of the tyres(horizontally)
+#then add the collisions
 
+import pygame
+
+#initial setup of screen
+pygame.init()
 FPS = 60
 screen_width = 800
 screen_height = 600
@@ -9,195 +12,291 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
 clock = pygame.time.Clock()
 
-#images
-up_straight = pygame.image.load("straight 2.png")
-along_straight = pygame.image.load("straight 1.png")
-t_three = pygame.image.load("curve 3.png")
-t_two = pygame.image.load("curve 2.png")
-t_one = pygame.image.load("curve 1.png")
-t_four = pygame.image.load("curve 4.png")
-grass = pygame.image.load("grass.png")
-gravel_trap = pygame.image.load("gravel trap.png")
-tyre_wall = pygame.image.load("tyre wall - straight green.png")
-tyre_wall = pygame.transform.scale(tyre_wall, (40, 600))
 
-car_one = pygame.image.load("pitstop_car_1.png")
-car_one = pygame.transform.scale(car_one, (40, 80))
-car_one = pygame.transform.rotate(car_one, 180)
-CONST_CAR_ONE = car_one
-#tyre = pygame.image.load("img.png")
-#tyre = pygame.transform.scale(tyre, (40,40))
+def draw_text(x_pos, y_pos, size, color, surface, message=''):
+    font = pygame.font.SysFont(None, size)
+    text = font.render(message, True, color)
+    surface.blit(text, (x_pos, y_pos))
 
-#draw an image onto the screen in the desired position
-#must have image variable before calling the function
-#however this will scale the image
-def draw_image(image, x_position, y_position):
-    image = pygame.transform.scale(image, (screen_width, screen_height))
-    screen.blit(image, (x+x_position, y+y_position))
+class Game:
+    def __init__(self):
+        self.start_screen()
 
-def draw_text(x_pos, y_pos, message=''):
-    text = font.render(message, True, (255, 255, 0))
-    screen.blit(text, (x_pos, y_pos))
+    def start_screen(self):
+        running = True
 
+        while running:
+            screen.fill((105, 228, 146))
+            draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
+            draw_text(260, 275,50,(61,79,31), screen, 'Press P to PLAY')
+            draw_text(230, 350, 50, (61, 79, 31), screen, 'Press M for the MENU')
+            draw_text(260, 425, 50, (61, 79, 31), screen, 'Press Q to QUIT')
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_m]:
+                self.menu_screen()
+            if keys[pygame.K_p]:
+                self.playing_screen()
+            if keys[pygame.K_q]:
+                pygame.quit()
 
-#possibly make a function that takes a list of images then prints it one after another (efficency)
-#possibly make a function for the keys pressed but this may go in the screen classes
-def draw_all():
-    draw_image(up_straight, 0, 0)
-    draw_image(t_three, 0, -600)
-    draw_image(t_two, 800, -600)
-    draw_image(t_three, 800, -1200)
-    draw_image(t_one, 1600, -1200)
-    draw_image(up_straight, 1600, -600)
-    draw_image(up_straight, 1600, 0)
-    draw_image(up_straight, 1600, 600)
-    draw_image(up_straight, 1600, 1200)
-    draw_image(t_two, 1600, 1800)
-    draw_image(t_four, 800, 1800)
-    draw_image(up_straight, 800, 1200)
-    draw_image(t_one, 800, 600)
-    draw_image(t_four, 0, 600)
-    draw_image(grass, 800, 0)
-    draw_image(gravel_trap, 0, -1200)
-    draw_image(gravel_trap, 0, 1200)
-    draw_image(gravel_trap, 0, 1800)
-    screen.blit(tyre_wall, (x, y ))
-    screen.blit(tyre_wall, (x, y-600))
-    screen.blit(tyre_wall, (x , y + 600))
-    screen.blit(tyre_wall, (x, y+1200))
-    screen.blit(tyre_wall, (x+ 1600, y-600))
-    screen.blit(tyre_wall, (x+1600, y))
-    screen.blit(tyre_wall, (x+1600, y+600))
-    screen.blit(tyre_wall, (x+1600, y+1200))
-    screen.blit(tyre_wall, (x + 2360, y - 600))
-    screen.blit(tyre_wall, (x + 2360, y))
-    screen.blit(tyre_wall, (x + 2360, y + 600))
-    screen.blit(tyre_wall, (x + 2360, y + 1200))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
 
-x = 0
-y = 0
-direction = 0
-x_change = 0
-y_change = 0
-accel_x = 0
-accel_y = 0
-max_speed = 15
-color_position = (x, y)
+            pygame.display.flip()
+            pygame.display.update()
 
+    def playing_screen(self, running = True):
+        up_straight = pygame.image.load("straight 2.png")
+        along_straight = pygame.image.load("straight 1.png")
+        t_three = pygame.image.load("curve 3.png")
+        t_two = pygame.image.load("curve 2.png")
+        t_one = pygame.image.load("curve 1.png")
+        t_four = pygame.image.load("curve 4.png")
+        grass = pygame.image.load("grass.png")
+        tyre_wall = pygame.image.load("tyre wall - straight green.png")
+        tyre_wall = pygame.transform.scale(tyre_wall, (40, 600))
+        gravel_trap = pygame.image.load("gravel trap.png")
+        tyre_wall_hori = pygame.transform.rotate(tyre_wall, (90))
+        tyre_wall_hori = pygame.transform.scale(tyre_wall_hori, (800, 40))
 
-running = True
-while running:
+        car_one = pygame.image.load("pitstop_car_1.png")
+        car_one = pygame.transform.scale(car_one, (40, 80))
+        car_one = pygame.transform.rotate(car_one, 180)
+        CONST_CAR_ONE = car_one
 
-    font = pygame.font.Font(None, 30)
-    clock.tick(FPS)
-    keys = pygame.key.get_pressed()
-    start_direction = direction
-    if keys[pygame.K_w]:
-        color_position = (400, 350)
-        accel_y = 0.2
+        # draw an image onto the screen in the desired position and scale it to fill the screen
+        def draw_image(image, x_position, y_position):
+            image = pygame.transform.scale(image, (screen_width, screen_height))
+            screen.blit(image, (x + x_position, y + y_position))
+
+        # possibly make a function that takes a list of images then prints it one after another (efficency)
+        def draw_all():
+            draw_image(up_straight, 0, 0)
+            draw_image(t_three, 0, -600)
+            draw_image(t_two, 800, -600)
+            draw_image(t_three, 800, -1200)
+            draw_image(t_one, 1600, -1200)
+            draw_image(up_straight, 1600, -600)
+            draw_image(up_straight, 1600, 0)
+            draw_image(up_straight, 1600, 600)
+            draw_image(up_straight, 1600, 1200)
+            draw_image(t_two, 1600, 1800)
+            draw_image(t_four, 800, 1800)
+            draw_image(up_straight, 800, 1200)
+            draw_image(t_one, 800, 600)
+            draw_image(t_four, 0, 600)
+            draw_image(grass, 800, 0)
+            draw_image(gravel_trap, 0, -1200)
+            draw_image(gravel_trap, 0, 1200)
+            draw_image(gravel_trap, 0, 1800)
+            screen.blit(tyre_wall, (x, y))
+            screen.blit(tyre_wall, (x, y - 600))
+            screen.blit(tyre_wall, (x, y - 1200))
+            screen.blit(tyre_wall, (x, y + 600))
+            screen.blit(tyre_wall, (x, y + 1200))
+            screen.blit(tyre_wall, (x, y + 1800))
+            screen.blit(tyre_wall, (x + 1600, y - 600))
+            screen.blit(tyre_wall, (x + 1600, y))
+            screen.blit(tyre_wall, (x + 1600, y + 600))
+            screen.blit(tyre_wall, (x + 1600, y + 1200))
+            screen.blit(tyre_wall, (x + 2360, y - 600))
+            screen.blit(tyre_wall, (x + 2360, y - 1200))
+            screen.blit(tyre_wall, (x + 2360, y))
+            screen.blit(tyre_wall, (x + 2360, y + 600))
+            screen.blit(tyre_wall, (x + 2360, y + 1200))
+            screen.blit(tyre_wall, (x + 2360, y + 1800))
+            screen.blit(tyre_wall_hori, (x + 40, y - 1200))
+            screen.blit(tyre_wall_hori, (x + 800, y - 1200))
+            screen.blit(tyre_wall_hori, (x + 1600, y - 1200))
+            screen.blit(tyre_wall_hori, (x + 40, y + 2360))
+            screen.blit(tyre_wall_hori, (x + 800, y + 2360))
+            screen.blit(tyre_wall_hori, (x + 1600, y + 2360))
+
+        x = 0
+        y = 0
+        x_change = 0
+        y_change = 0
+        accel_x = 0
+        accel_y = 0
+        max_speed = 15
+        color_position = (x, y)
         direction = 0
 
-    if keys[pygame.K_s]:
-        color_position = (400, 250)
-        accel_y = -0.2
-        direction = 180
+        while running:
 
-    if keys[pygame.K_a]:
-        color_position = (450, 300)
-        accel_x = 0.2
-        direction = 90
+            font = pygame.font.Font(None, 30)
+            clock.tick(FPS)
+            keys = pygame.key.get_pressed()
+            start_direction = direction
 
-    if keys[pygame.K_d]:
-        color_position = (350, 300)
-        accel_x = -0.2
-        direction = 270
+            #code for key presses
+            #line1 - where to read the colour of the pixel from
+            #line2 - amending acceleration
+            #line3 - the way it is facing
+            if keys[pygame.K_w]:
+                color_position = (400, 350)
+                accel_y = 0.2
+                direction = 0
 
-    if keys[pygame.K_w] and keys[pygame.K_d]:
-        direction = 315
-        color_position = (400 - (25*(2**(1/2))), 300 + (25*(2**(1/2))))
-        accel_x = -(0.2*((2**(1/2))/2))
-        accel_y = 0.2 * ((2**(1/2))/2)
+            if keys[pygame.K_s]:
+                color_position = (400, 250)
+                accel_y = -0.2
+                direction = 180
 
-    if keys[pygame.K_s] and keys[pygame.K_d]:
-        direction = 225
-        color_position = (400 - (25*(2**(1/2))), 300 - (25*(2**(1/2))))
-        accel_x = -(0.2*((2**(1/2))/2))
-        accel_y = -(0.2*((2**(1/2))/2))
+            if keys[pygame.K_a]:
+                color_position = (450, 300)
+                accel_x = 0.2
+                direction = 90
 
-    if keys[pygame.K_s] and keys[pygame.K_a]:
-        direction = 135
-        color_position = (400 + (25*(2**(1/2))), 300 - (25*(2**(1/2))))
-        accel_x = 0.2*((2**(1/2))/2)
-        accel_y = -(0.2*((2**(1/2))/2))
+            if keys[pygame.K_d]:
+                color_position = (350, 300)
+                accel_x = -0.2
+                direction = 270
 
-    if keys[pygame.K_w] and keys[pygame.K_a]:
-        direction = 45
-        color_position = (400 + (25*(2**(1/2))), 300 + (25*(2**(1/2))))
-        accel_x = 0.2*((2**(1/2))/2)
-        accel_y = 0.2*((2**(1/2))/2)
+            if keys[pygame.K_w] and keys[pygame.K_d]:
+                direction = 315
+                color_position = (400 - (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
+                accel_x = -(0.2 * ((2 ** (1 / 2)) / 2))
+                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
-    direction_change = direction - start_direction
-    if direction_change != 0:
-        car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
+            if keys[pygame.K_s] and keys[pygame.K_d]:
+                direction = 225
+                color_position = (400 - (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
+                accel_x = -(0.2 * ((2 ** (1 / 2)) / 2))
+                accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+            if keys[pygame.K_s] and keys[pygame.K_a]:
+                direction = 135
+                color_position = (400 + (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
+                accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
+                accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
+            if keys[pygame.K_w] and keys[pygame.K_a]:
+                direction = 45
+                color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
+                accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
+                accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
-        if event.type == pygame.KEYUP:
-            if event.key in (pygame.K_d, pygame.K_a):
-                accel_x = 0
-            elif event.key in (pygame.K_w, pygame.K_s):
-                accel_y = 0
+            #prints the color at the corresponding position
+            if keys[pygame.K_e]:
+                color_position = int(color_position[0]), int(color_position[1])
+                print(screen.get_at(color_position))
 
-    if keys[pygame.K_e]:
-        color_position = int(color_position[0]), int(color_position[1])
-        print(screen.get_at(color_position))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                #when no button is pressed the car decelerates
+                if event.type == pygame.KEYUP:
+                    if event.key in (pygame.K_d, pygame.K_a):
+                        accel_x = 0
+                    elif event.key in (pygame.K_w, pygame.K_s):
+                        accel_y = 0
 
-    color_position = int(color_position[0]), int(color_position[1])
-    pixel_color = screen.get_at(color_position)
-    if pixel_color == (20, 160, 46, 255):
-        max_speed = 6
-    else:
-        max_speed = 15
-    
-    if accel_x == 0:
-        x_change *= 0.90
-    if accel_y == 0:
-        y_change *= 0.90
+            if keys[pygame.K_ESCAPE]:
+                self.menu_screen()
 
-    # Accelerate.
-    x_change += accel_x
-    y_change += accel_y
+            direction_change = direction - start_direction
+            if direction_change != 0:
+                car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
 
-    # If max_speed is exceeded.
-    # Normalize the x_change and multiply it with the max_speed.
-    if abs(x_change) >= max_speed:
-        x_change = x_change/abs(x_change) * max_speed
-    elif abs(y_change) >= max_speed:
-        y_change = y_change/abs(y_change) * max_speed
-    if abs(x_change) >= (15 * ((2 ** (1 / 2)) / 2)) and abs(y_change) >= (15 * ((2 ** (1 / 2)) / 2)):
-        x_change = x_change / abs(x_change) * (15 * ((2 ** (1 / 2)) / 2))
-        y_change = y_change / abs(y_change) * (15 * ((2 ** (1 / 2)) / 2))
+            color_position = int(color_position[0]), int(color_position[1])
+            pixel_color = screen.get_at(color_position)
+            if pixel_color == (20, 160, 46, 255):
+                max_speed = 8
+            elif pixel_color == (214, 200, 96, 255):
+                max_speed = 5
+            else:
+                max_speed = 15
 
-    if pixel_color == (20, 160, 46, 255):
-        if abs(x_change) >= (6*((2**(1/2))/2)) and abs(y_change) >= (6*((2**(1/2))/2)):
-            x_change = x_change / abs(x_change) * (6*((2**(1/2))/2))
-            y_change = y_change / abs(y_change) * (6*((2**(1/2))/2))
+            #for car collisions
+            car_rect = car_one.get_rect(center = (400,300))
+            #for vertical tyre walls
+            for i in range (-600, 1800, 600): #1800 because plus one
+                tyre_rect = tyre_wall.get_rect(topleft = (x+1600, y+i))
+                if car_rect.colliderect(tyre_rect):
+                    print('hit')
+            for i in range (-1200, 2400, 600):
+                tyre_rect = tyre_wall.get_rect(topleft = (x, y+i))
+                if car_rect.colliderect(tyre_rect):
+                    print('hit')
+                tyre_rect = tyre_wall.get_rect(topleft = (x+2360, y+i))
+                if car_rect.colliderect(tyre_rect):
+                    print('hit')
+            #for horizontal tyre walls
+            for i in range (0, 2400, 800):
+                tyre_rect = tyre_wall_hori.get_rect(topleft=(x+i, y -1200))
+                if car_rect.colliderect(tyre_rect):
+                    print('hit')
+                tyre_rect = tyre_wall_hori.get_rect(topleft=(x +i, y +2360))
+                if car_rect.colliderect(tyre_rect):
+                    print('hit')
 
-    # Move the object.
-    x += x_change
-    y += y_change
+            # Accelerate.
+            x_change += accel_x
+            y_change += accel_y
 
-    total_speed = int(((x_change**2) + (y_change**2))**(1/2))
-    total_speed = str(total_speed)
-    speed_text = font.render(('Speed: '+ total_speed), True, (255,255,255))
+            #when the acceleration is 0 (when no button is pressed) x value decreases by 0.92 of current value
+            if accel_x == 0:
+                x_change *= 0.92
+            if accel_y == 0:
+                y_change *= 0.92
 
-    screen.fill((255, 255, 255))
-    draw_all()
-    screen.blit(car_one, car_rect)
-    screen.blit(speed_text, (370, 500))
-    
-    pygame.display.update()
+            # If max_speed is exceeded.
+            # Normalize the x_change and multiply it with the max_speed.
+            if abs(x_change) >= max_speed:
+                x_change = x_change / abs(x_change) * max_speed
+            if abs(y_change) >= max_speed:
+                y_change = y_change / abs(y_change) * max_speed
+            if abs(x_change) >= (15 * ((2 ** (1 / 2)) / 2)) and abs(y_change) >= (15 * ((2 ** (1 / 2)) / 2)):
+                x_change = x_change / abs(x_change) * (15 * ((2 ** (1 / 2)) / 2))
+                y_change = y_change / abs(y_change) * (15 * ((2 ** (1 / 2)) / 2))
+
+            if pixel_color == (20, 160, 46, 255):
+                if abs(x_change) >= (8 * ((2 ** (1 / 2)) / 2)) and abs(y_change) >= (8 * ((2 ** (1 / 2)) / 2)):
+                    x_change = x_change / abs(x_change) * (8 * ((2 ** (1 / 2)) / 2))
+                    y_change = y_change / abs(y_change) * (8 * ((2 ** (1 / 2)) / 2))
+
+            if pixel_color == (214, 200, 96, 255):
+                if abs(x_change) >= (5 * ((2 ** (1 / 2)) / 2)) and abs(y_change) >= (5 * ((2 ** (1 / 2)) / 2)):
+                    x_change = x_change / abs(x_change) * (5 * ((2 ** (1 / 2)) / 2))
+                    y_change = y_change / abs(y_change) * (5 * ((2 ** (1 / 2)) / 2))
+
+            # Move the object.
+            x += x_change
+            y += y_change
+
+            total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
+            total_speed = str(total_speed)
+            speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
+
+            screen.fill((255, 255, 255))
+            draw_all()
+            screen.blit(car_one, car_rect)
+            screen.blit(speed_text, (370, 500))
+
+            pygame.display.flip()
+            pygame.display.update()
+
+
+    def menu_screen(self, running = True):
+        while running:
+            screen.fill((105, 228, 146))
+            keys = pygame.key.get_pressed()
+            draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
+            draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+            if keys[pygame.K_BACKSPACE]:
+                self.start_screen()
+
+
+            pygame.display.flip()
+            pygame.display.update()
+
+
+
+game = Game()
 
 pygame.quit()
