@@ -208,28 +208,38 @@ class Game:
             else:
                 max_speed = 15
 
+            hit = False
             #for car collisions
             car_rect = car_one.get_rect(center = (400,300))
             #for vertical tyre walls
             for i in range (-600, 1800, 600): #1800 because plus one
                 tyre_rect = tyre_wall.get_rect(topleft = (x+1600, y+i))
                 if car_rect.colliderect(tyre_rect):
-                    print('hit')
+                    hit = True
             for i in range (-1200, 2400, 600):
                 tyre_rect = tyre_wall.get_rect(topleft = (x, y+i))
                 if car_rect.colliderect(tyre_rect):
-                    print('hit')
+                    hit = True
                 tyre_rect = tyre_wall.get_rect(topleft = (x+2360, y+i))
                 if car_rect.colliderect(tyre_rect):
-                    print('hit')
+                    hit = True
             #for horizontal tyre walls
             for i in range (0, 2400, 800):
                 tyre_rect = tyre_wall_hori.get_rect(topleft=(x+i, y -1200))
                 if car_rect.colliderect(tyre_rect):
-                    print('hit')
+                    hit = True
                 tyre_rect = tyre_wall_hori.get_rect(topleft=(x +i, y +2360))
                 if car_rect.colliderect(tyre_rect):
-                    print('hit')
+                    hit = True
+
+            if hit:
+                # add or for diagonals
+                if x_change >= 3 or y_change >= 3:
+                    print('game over')
+                    self.game_over()
+                else:
+                    x_change = 0
+                    y_change = 0
 
             # Accelerate.
             x_change += accel_x
@@ -288,6 +298,20 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+            if keys[pygame.K_BACKSPACE]:
+                self.start_screen()
+
+            pygame.display.flip()
+            pygame.display.update()
+
+#issues
+    def game_over(self, running = True):
+        while running:
+            screen.fill((228, 76, 76))
+            keys = pygame.key.get_pressed()
+            draw_text(225, 150, 100, (0, 0, 0), screen, 'GAME OVER')
+            draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
+            draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
 
