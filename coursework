@@ -11,6 +11,7 @@ screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
 clock = pygame.time.Clock()
+lapclock = pygame.time.Clock()
 
 
 def draw_text(x_pos, y_pos, size, color, surface, message=''):
@@ -59,6 +60,8 @@ class Game:
         gravel_trap = pygame.image.load("gravel trap.png")
         tyre_wall_hori = pygame.transform.rotate(tyre_wall, (90))
         tyre_wall_hori = pygame.transform.scale(tyre_wall_hori, (800, 40))
+        finish = pygame.image.load("Finish line.png")
+        finish = pygame.transform.scale(finish, (450, 30))
 
         car_one = pygame.image.load("pitstop_car_1.png")
         car_one = pygame.transform.scale(car_one, (40, 80))
@@ -112,6 +115,7 @@ class Game:
             screen.blit(tyre_wall_hori, (x + 40, y + 2360))
             screen.blit(tyre_wall_hori, (x + 800, y + 2360))
             screen.blit(tyre_wall_hori, (x + 1600, y + 2360))
+            screen.blit(finish, (x + 175, y + 100))
 
         x = 0
         y = 0
@@ -122,6 +126,8 @@ class Game:
         max_speed = 15
         color_position = (x, y)
         direction = 0
+        lap_counter = 0
+        lapclock.tick()
 
         while running:
 
@@ -129,6 +135,7 @@ class Game:
             clock.tick(FPS)
             keys = pygame.key.get_pressed()
             start_direction = direction
+            current_ticks = pygame.time.get_ticks()
 
             #code for key presses
             #line1 - where to read the colour of the pixel from
@@ -171,6 +178,7 @@ class Game:
                 color_position = (400 + (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
                 accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
                 accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
+
             if keys[pygame.K_w] and keys[pygame.K_a]:
                 direction = 45
                 color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
@@ -233,6 +241,7 @@ class Game:
                     hit = True
 
             if hit:
+
                 # add or for diagonals
                 if x_change >= 3 or y_change >= 3:
                     print('game over')
@@ -275,20 +284,49 @@ class Game:
             x += x_change
             y += y_change
 
+            #timings
+            finish_rect = finish.get_rect(topleft=(x + 175, y + 200))
+            ms = int(current_ticks % 1000)
+            s = int(current_ticks / 1000 % 60)
+            m = int(current_ticks / 60000 % 60)
+
+            time = f'{m}:{s}:{ms}'
+
+            front_of_car = (400, 250)
+
+            finish_collision = False
+            if finish_rect.collidepoint(front_of_car):
+                finish_collision = True
+
+            if finish_collision:
+                lapclock.tick()
+                lap_time = lapclock.get_time()
+                if lap_time < 1000:
+                    pass
+                else:
+                    print('lap', lap_counter, ':', lap_time)
+                    lap_counter = lap_counter + 1
+
+
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
             total_speed = str(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
+            time_text = font.render(time, True, (255, 255, 255))
+            lap_number = font.render(('Lap: ' + str(lap_counter)), True, (0, 0, 255))
 
             screen.fill((255, 255, 255))
             draw_all()
             screen.blit(car_one, car_rect)
             screen.blit(speed_text, (370, 500))
+            screen.blit(lap_number, (10, 10))
+            screen.blit(time_text, (370, 100))
 
             pygame.display.flip()
             pygame.display.update()
 
 
     def menu_screen(self, running = True):
+        #need to add return to game function
         while running:
             screen.fill((105, 228, 146))
             keys = pygame.key.get_pressed()
@@ -304,16 +342,16 @@ class Game:
             pygame.display.flip()
             pygame.display.update()
 
-#issues
-    def game_over(self, running = True):
-        while running:
-            screen.fill((228, 76, 76))
-            keys = pygame.key.get_pressed()
-            draw_text(225, 150, 100, (0, 0, 0), screen, 'GAME OVER')
-            draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
-            draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
-            if keys[pygame.K_BACKSPACE]:
-                self.start_screen()
+#issues - works with menu screen, not game over screen
+   # def game_over(self, running = True):
+    #    while running:
+     #       screen.fill((228, 76, 76))
+      #      keys = pygame.key.get_pressed()
+       #     draw_text(225, 150, 100, (0, 0, 0), screen, 'GAME OVER')
+        #    draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
+         #   draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
+          #  if keys[pygame.K_BACKSPACE]:
+           #     self.start_screen()
 
 
             pygame.display.flip()
