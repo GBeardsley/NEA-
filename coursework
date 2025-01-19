@@ -1,6 +1,3 @@
-#add gravel and rest of the tyres(horizontally)
-#then add the collisions
-
 import pygame
 
 #initial setup of screen
@@ -10,6 +7,7 @@ screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
+#timers
 clock = pygame.time.Clock()
 lapclock = pygame.time.Clock()
 
@@ -21,22 +19,28 @@ def draw_text(x_pos, y_pos, size, color, surface, message=''):
 
 class Game:
     def __init__(self):
+        #first screen it goes to
         self.start_screen()
 
+    #start screen
     def start_screen(self):
         running = True
 
         while running:
+            #drawing text onto the screen
             screen.fill((105, 228, 146))
             draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
             draw_text(260, 275,50,(61,79,31), screen, 'Press P to PLAY')
             draw_text(230, 350, 50, (61, 79, 31), screen, 'Press M for the MENU')
             draw_text(260, 425, 50, (61, 79, 31), screen, 'Press Q to QUIT')
             keys = pygame.key.get_pressed()
+            #for menu screen
             if keys[pygame.K_m]:
                 self.menu_screen()
+            #for game screen
             if keys[pygame.K_p]:
                 self.playing_screen()
+            #to leave the game
             if keys[pygame.K_q]:
                 pygame.quit()
 
@@ -47,9 +51,10 @@ class Game:
             pygame.display.flip()
             pygame.display.update()
 
+    #game screen
     def playing_screen(self, running = True):
+        #images
         up_straight = pygame.image.load("straight 2.png")
-        along_straight = pygame.image.load("straight 1.png")
         t_three = pygame.image.load("curve 3.png")
         t_two = pygame.image.load("curve 2.png")
         t_one = pygame.image.load("curve 1.png")
@@ -117,18 +122,19 @@ class Game:
             screen.blit(tyre_wall_hori, (x + 1600, y + 2360))
             screen.blit(finish, (x + 175, y + 100))
 
+        #variables
         x = 0
         y = 0
         x_change = 0
         y_change = 0
         accel_x = 0
         accel_y = 0
-        max_speed = 15
         color_position = (x, y)
         direction = 0
-        lap_counter = 0
+        lap_counter = 1
         lapclock.tick()
         start_time = pygame.time.get_ticks()
+        lap_times = []
 
         while running:
 
@@ -136,7 +142,6 @@ class Game:
             clock.tick(FPS)
             keys = pygame.key.get_pressed()
             start_direction = direction
-            current_ticks = pygame.time.get_ticks()
 
             #code for key presses
             #line1 - where to read the colour of the pixel from
@@ -187,6 +192,7 @@ class Game:
                 accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
             #prints the color at the corresponding position
+            #for testing
             if keys[pygame.K_e]:
                 color_position = int(color_position[0]), int(color_position[1])
                 print(screen.get_at(color_position))
@@ -200,16 +206,19 @@ class Game:
                         accel_x = 0
                     elif event.key in (pygame.K_w, pygame.K_s):
                         accel_y = 0
-
+            #pausing the game
             if keys[pygame.K_ESCAPE]:
                 self.menu_screen()
 
+            #car faces the correct direction
             direction_change = direction - start_direction
             if direction_change != 0:
                 car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
 
+            #gets the pixel colour at the correct x and y coordinates
             color_position = int(color_position[0]), int(color_position[1])
             pixel_color = screen.get_at(color_position)
+            #changes the max speed depending on the colour of the pixel the car is on
             if pixel_color == (20, 160, 46, 255):
                 max_speed = 8
             elif pixel_color == (214, 200, 96, 255):
@@ -224,32 +233,39 @@ class Game:
             for i in range (-600, 1800, 600): #1800 because plus one
                 tyre_rect = tyre_wall.get_rect(topleft = (x+1600, y+i))
                 if car_rect.colliderect(tyre_rect):
+                    if x_change >= 0:
+                        #moves the car back by 8
+                        x = x - 8
+                    elif x_change <= 0:
+                        x = x + 8
                     hit = True
             for i in range (-1200, 2400, 600):
                 tyre_rect = tyre_wall.get_rect(topleft = (x, y+i))
                 if car_rect.colliderect(tyre_rect):
                     x = x - 8
+                    hit = True
                 tyre_rect = tyre_wall.get_rect(topleft = (x+2360, y+i))
                 if car_rect.colliderect(tyre_rect):
                     x = x + 8
+                    hit = True
             #for horizontal tyre walls
             for i in range (0, 2400, 800):
                 tyre_rect = tyre_wall_hori.get_rect(topleft=(x+i, y -1200))
                 if car_rect.colliderect(tyre_rect):
                     y = y - 8
+                    hit = True
                 tyre_rect = tyre_wall_hori.get_rect(topleft=(x +i, y +2360))
                 if car_rect.colliderect(tyre_rect):
                     y = y + 8
+                    hit = True
 
+            # add or for diagonals
             if hit:
-
-                # add or for diagonals
-                if x_change >= 3 or y_change >= 3:
+                if x_change >= 3 or y_change >= 3 :
                     print('game over')
-                    self.game_over()
-                else:
-                    x_change = 0
-                    y_change = 0
+                    self.game_over(lap_times, crashed = True)
+
+
 
             # Accelerate.
             x_change += accel_x
@@ -262,7 +278,8 @@ class Game:
                 y_change *= 0.92
 
             # If max_speed is exceeded.
-            # Normalize the x_change and multiply it with the max_speed.
+            # Make x_change value positive and multiply it with the max_speed.
+            #stops the car exceeding 15 speed
             if abs(x_change) >= max_speed:
                 x_change = x_change / abs(x_change) * max_speed
             if abs(y_change) >= max_speed:
@@ -275,6 +292,7 @@ class Game:
             x += x_change
             y += y_change
 
+            #lap timing
             end_time = pygame.time.get_ticks()
             elapsed_time = end_time - start_time
 
@@ -284,30 +302,57 @@ class Game:
             s = int(elapsed_time / 1000 % 60)
             m = int(elapsed_time / 60000 % 60)
 
+            #format the time
             time = f'{m}:{s}:{ms}'
 
-            front_of_car = (400, 250)
+            #where to take collision from
+            front_of_car = (400, 245)
 
+            #check to see if collides with the finsh line
             finish_collision = False
             if finish_rect.collidepoint(front_of_car):
                 finish_collision = True
 
+            #if it does collide then get the lap time
             if finish_collision:
                 lapclock.tick()
                 lap_time = lapclock.get_time()
-                if lap_time < 1000:
+                ms = int(lap_time % 1000)
+                s = int(lap_time / 1000 % 60)
+                #m = int(lap_time / 60000 % 60)
+                if lap_time < 2000:
                     pass
                 else:
+                    #format the lap time
+                    lap_time = f'{s}:{ms}'
                     print('lap', lap_counter, ':', lap_time)
                     lap_counter = lap_counter + 1
+                    #add lap time to the list of lap times
+                    lap_times.append(lap_time)
+                    print(lap_times)
 
+            #only allows 3 laps to happen
+            if lap_counter == 4:
+                #write the total lap to the leaderboard
+                with open('Total_Leaderboard.txt', 'w') as file:
+                    file.write(time)
+                #write each individual lap time to the other leaderboard
+                with open('Lap_Leaderboard.txt', 'w') as file:
+                    for i in range(0, 3):
+                        file.write(lap_times[i] + '\n')
 
+                #end the game
+                self.game_over(lap_times, crashed = False)
+
+            #finds the speed using pythagoras
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
+            #converts to a string
             total_speed = str(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
             time_text = font.render(time, True, (255, 255, 255))
             lap_number = font.render(('Lap: ' + str(lap_counter)), True, (0, 0, 255))
 
+            #puts all the information in correct places on the screen
             screen.fill((255, 255, 255))
             draw_all()
             screen.blit(car_one, car_rect)
@@ -318,7 +363,7 @@ class Game:
             pygame.display.flip()
             pygame.display.update()
 
-
+    #menu screen
     def menu_screen(self, running = True):
         #need to add ability to resume game where it was paused
         while running:
@@ -326,29 +371,38 @@ class Game:
             keys = pygame.key.get_pressed()
             draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
             draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
+            draw_text(150, 225, 50, (61,79,31), screen, 'Press ESCAPE to restart')
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+            #goes to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
+            #goes back to playing screen (restarts)
             if keys[pygame.K_ESCAPE]:
                 self.playing_screen()
 
             pygame.display.flip()
             pygame.display.update()
 
-
-    def game_over(self, running = True):
+    #game finished screen - depending if you crashed or not
+    def game_over(self, lap_times, crashed, running = True):
         while running:
             screen.fill((228, 76, 76))
             keys = pygame.key.get_pressed()
             draw_text(225, 150, 100, (0, 0, 0), screen, 'GAME OVER')
-            draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
             draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
+            if crashed:
+                draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
+            elif not crashed:
+                for i in range (0, 3):
+                    #prints lap times
+                    draw_text(275, 350 + (i*30), 50, (0,0,0), screen, 'lap' + str(i+1) + ':' + lap_times[i])
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+            #goes back to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
 
