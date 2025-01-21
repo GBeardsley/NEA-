@@ -334,12 +334,24 @@ class Game:
             #only allows 3 laps to happen
             if lap_counter == 4:
                 #write the total lap to the leaderboard
-                with open('Total_Leaderboard.txt', 'w') as file:
+                with open('Total_Leaderboard.txt', 'a') as file:
                     file.write(time)
                 #write each individual lap time to the other leaderboard
-                with open('Lap_Leaderboard.txt', 'w') as file:
+                with open('Lap_Leaderboard.txt', 'a') as file:
                     for i in range(0, 3):
                         file.write(lap_times[i] + '\n')
+
+                times = list()
+                # open file to read and write
+                with open('Lap_Leaderboard.txt', 'r') as file:
+                    for line in file:
+                        # adds time to list of times
+                        times.append(line)
+                    # sorts the list
+                    times.sort()
+                with open('Lap_Leaderboard.txt', 'w') as file:
+                    for time in times:
+                        file.write(time)
 
                 #end the game
                 self.game_over(lap_times, crashed = False)
