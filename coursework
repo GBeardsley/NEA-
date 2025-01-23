@@ -74,7 +74,7 @@ class Game:
             if user_input:
                 #for menu screen
                 if keys[pygame.K_m]:
-                    self.menu_screen()
+                    self.menu_screen(home = True)
                 #for game screen
                 if keys[pygame.K_p]:
                     self.playing_screen()
@@ -242,7 +242,7 @@ class Game:
                         accel_y = 0
             #pausing the game
             if keys[pygame.K_ESCAPE]:
-                self.menu_screen()
+                self.menu_screen(home = False)
 
             #car faces the correct direction
             direction_change = direction - start_direction
@@ -410,14 +410,13 @@ class Game:
             pygame.display.update()
 
     #menu screen
-    def menu_screen(self, running = True):
+    def menu_screen(self, home, running = True):
         #need to add ability to resume game where it was paused
         while running:
             screen.fill((105, 228, 146))
             keys = pygame.key.get_pressed()
             draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
             draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
-            draw_text(150, 225, 50, (61,79,31), screen, 'Press ESCAPE to restart')
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -425,9 +424,11 @@ class Game:
             #goes to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
-            #goes back to playing screen (restarts)
-            if keys[pygame.K_ESCAPE]:
-                self.playing_screen()
+            if home == False:
+                draw_text(150, 225, 50, (61, 79, 31), screen, 'Press ESCAPE to restart')
+                #goes back to playing screen (restarts)
+                if keys[pygame.K_ESCAPE]:
+                    self.playing_screen()
 
             pygame.display.flip()
             pygame.display.update()
