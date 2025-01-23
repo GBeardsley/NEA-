@@ -1,4 +1,5 @@
 import pygame
+from pygame import K_BACKSPACE, K_RETURN
 
 #initial setup of screen
 pygame.init()
@@ -25,28 +26,61 @@ class Game:
     #start screen
     def start_screen(self):
         running = True
+        user_input = False
+        username = ''
 
         while running:
-            #drawing text onto the screen
+            font = pygame.font.Font(None, 50)
+
             screen.fill((105, 228, 146))
             draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
-            draw_text(260, 275,50,(61,79,31), screen, 'Press P to PLAY')
-            draw_text(230, 350, 50, (61, 79, 31), screen, 'Press M for the MENU')
-            draw_text(260, 425, 50, (61, 79, 31), screen, 'Press Q to QUIT')
-            keys = pygame.key.get_pressed()
-            #for menu screen
-            if keys[pygame.K_m]:
-                self.menu_screen()
-            #for game screen
-            if keys[pygame.K_p]:
-                self.playing_screen()
-            #to leave the game
-            if keys[pygame.K_q]:
-                pygame.quit()
+            draw_text(260, 350, 50, (61, 79, 31), screen, 'Press P to PLAY')
+            draw_text(230, 425, 50, (61, 79, 31), screen, 'Press M for the MENU')
+            draw_text(260, 500, 50, (61, 79, 31), screen, 'Press Q to QUIT')
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+                if event.type == pygame.KEYDOWN:
+                    #if enter key is pressed with a name in, then you can play the game
+                    if event.key == pygame.K_RETURN:
+                        #if there is no name in then, you cannot play the game
+                        if username == '':
+                            user_input = False
+                        else:
+                            user_input = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        #if the backspace key is pressed, then it deletes the last character
+                        username = username[:-1]
+                    else:
+                        #otherwise the characters should be added to the username
+                        username = username + event.unicode
+
+                #if the username is longer than twelve characters then no more should be added
+                if len(username)> 12:
+                    username = username[:-1]
+
+
+            pygame.draw.rect(screen, (61,79,31), (250, 200, 300, 60))
+            #before a letter is added, the screen displays the instruction - enter username
+            if username == '':
+                draw_text(250, 210, 50, (105, 228, 146), screen, 'Enter Username')
+            username_box = font.render(username, True, (105, 228, 146))
+            screen.blit(username_box, (250, 210))
+
+            keys = pygame.key.get_pressed()
+
+            #only if a username is entered, can you play the game
+            if user_input:
+                #for menu screen
+                if keys[pygame.K_m]:
+                    self.menu_screen()
+                #for game screen
+                if keys[pygame.K_p]:
+                    self.playing_screen()
+            #to leave the game
+            if keys[pygame.K_q]:
+                pygame.quit()
 
             pygame.display.flip()
             pygame.display.update()
@@ -397,6 +431,26 @@ class Game:
 
             pygame.display.flip()
             pygame.display.update()
+
+    def leaderboard(self, running = True):
+        while running:
+            screen.fill((105, 228, 146))
+            keys = pygame.key.get_pressed()
+            draw_text(215,150, 100, (61, 79, 31), screen, 'LEADER BOARD')
+            laps = ()
+            totals = ()
+            with open('Lap_Leaderboard.txt', 'r') as file:
+                pass
+                #read the lap file and print the top 5
+            with open('Total_Leaderboard', 'r') as file:
+                pass
+                #read the total lap file and print the top 5
+
+
+
+
+
+
 
     #game finished screen - depending if you crashed or not
     def game_over(self, lap_times, crashed, running = True):
