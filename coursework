@@ -11,7 +11,7 @@ pygame.display.set_caption("Retro Racer")
 #timers
 clock = pygame.time.Clock()
 lapclock = pygame.time.Clock()
-
+username = ''
 
 def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
@@ -27,7 +27,7 @@ class Game:
     def start_screen(self):
         running = True
         user_input = False
-        username = ''
+        global username
 
         while running:
             font = pygame.font.Font(None, 50)
@@ -106,6 +106,8 @@ class Game:
         car_one = pygame.transform.scale(car_one, (40, 80))
         car_one = pygame.transform.rotate(car_one, 180)
         CONST_CAR_ONE = car_one
+
+        global username
 
         # draw an image onto the screen in the desired position and scale it to fill the screen
         def draw_image(image, x_position, y_position):
@@ -369,11 +371,11 @@ class Game:
             if lap_counter == 4:
                 #write the total lap to the leaderboard
                 with open('Total_Leaderboard.txt', 'a') as file:
-                    file.write(time)
+                    file.write(time + ', ' + username)
                 #write each individual lap time to the other leaderboard
                 with open('Lap_Leaderboard.txt', 'a') as file:
                     for i in range(0, 3):
-                        file.write(lap_times[i] + '\n')
+                        file.write(lap_times[i] + ', ' + username + '\n')
 
                 times = list()
                 # open file to read and write
