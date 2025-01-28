@@ -18,6 +18,29 @@ def draw_text(x_pos, y_pos, size, color, surface, message=''):
     text = font.render(message, True, color)
     surface.blit(text, (x_pos, y_pos))
 
+
+def leaderboard(running = True):
+    while running:
+        screen.fill((105, 228, 146))
+        keys = pygame.key.get_pressed()
+        draw_text(215,150, 100, (61, 79, 31), screen, 'LEADERBOARD')
+        laps = list()
+        totals = list()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        #if keys[pygame.K_BACKSPACE]:
+         #   self.menu_screen(home = False)
+        #with open('Lap_Leaderboard.txt', 'r') as file:
+         #   for line in file:
+          #      laps.append(line)
+            #read the lap file and print the top 5
+        #with open('Total_Leaderboard.txt', 'r') as file:
+         #   for line in file:
+          #      totals.append(line)
+            #read the total lap file and print the top 5
+
+
 class Game:
     def __init__(self):
         #first screen it goes to
@@ -344,7 +367,7 @@ class Game:
             time = f'{m}:{s}:{ms}'
 
             #where to take collision from
-            front_of_car = (400, 245)
+            front_of_car = (400, 230)
 
             #check to see if collides with the finsh line
             finish_collision = False
@@ -358,7 +381,7 @@ class Game:
                 ms = int(lap_time % 1000)
                 s = int(lap_time / 1000 % 60)
                 #m = int(lap_time / 60000 % 60)
-                if lap_time < 5000:
+                if lap_time < 2000:
                     pass
                 else:
                     #format the lap time
@@ -373,11 +396,11 @@ class Game:
             if lap_counter == 4:
                 #write the total lap to the leaderboard
                 with open('Total_Leaderboard.txt', 'a') as file:
-                    file.write(time + ', ' + username)
+                    file.write(time + ' - ' + username + '\n')
                 #write each individual lap time to the other leaderboard
                 with open('Lap_Leaderboard.txt', 'a') as file:
                     for i in range(0, 3):
-                        file.write(lap_times[i] + ', ' + username + '\n')
+                        file.write(lap_times[i] + ' - ' + username + '\n')
 
                 times = list()
                 # open file to read and write
@@ -400,14 +423,14 @@ class Game:
             total_speed = str(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
             time_text = font.render(time, True, (255, 255, 255))
-            lap_number = font.render(('Lap: ' + str(lap_counter)), True, (0, 0, 255))
+            lap_number = font.render(('Lap: ' + str(lap_counter)), True, (255, 0, 0))
 
             #puts all the information in correct places on the screen
             screen.fill((255, 255, 255))
             draw_all()
             screen.blit(car_one, car_rect)
             screen.blit(speed_text, (370, 500))
-            screen.blit(lap_number, (10, 10))
+            screen.blit(lap_number, (50, 10))
             screen.blit(time_text, (370, 100))
 
             pygame.display.flip()
@@ -421,15 +444,20 @@ class Game:
             keys = pygame.key.get_pressed()
             draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
             draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
+            draw_text(150, 325, 50, (61, 79, 31), screen, 'Press l to see the leaderboard')
+
+            if keys[pygame.K_BACKSPACE]:
+                self.start_screen()
+
+            if keys[pygame.K_l]:
+                self.leaderboard()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-            #goes to start screen
-            if keys[pygame.K_BACKSPACE]:
-                self.start_screen()
-            if home == False:
-                draw_text(150, 225, 50, (61, 79, 31), screen, 'Press ESCAPE to restart')
+
+            if not home:
+                draw_text(200, 225, 50, (61, 79, 31), screen, 'Press ESCAPE to restart')
                 #goes back to playing screen (restarts)
                 if keys[pygame.K_ESCAPE]:
                     self.playing_screen()
@@ -437,48 +465,88 @@ class Game:
             pygame.display.flip()
             pygame.display.update()
 
+    #leaderboard screen
     def leaderboard(self, running = True):
         while running:
+            #colors background and adds text onto screen
             screen.fill((105, 228, 146))
             keys = pygame.key.get_pressed()
-            draw_text(215,150, 100, (61, 79, 31), screen, 'LEADER BOARD')
-            laps = ()
-            totals = ()
-            with open('Lap_Leaderboard.txt', 'r') as file:
-                pass
-                #read the lap file and print the top 5
-            with open('Total_Leaderboard', 'r') as file:
-                pass
-                #read the total lap file and print the top 5
+            draw_text(130, 100, 100, (61,79, 31), screen, 'LEADERBOARDS')
+            draw_text(150, 450, 50, (61,79,31), screen, 'Press BACKSPACE to go back')
+            draw_text(100, 200, 40, (61,79,31), screen, 'Best Lap Time:')
+            draw_text(450, 200, 40, (61,79,31), screen, 'Best Total Time:')
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+            #lists for adding times too
+            lap_top_scores = 5
+            total_top_scores = 5
+            laps = list()
+            totals = list()
+
+            #opens lap file to read
+            with open ('Lap_Leaderboard.txt', 'r') as file:
+                for line in file:
+                    #adds time to the laps list - taking away the last letter ('\n')
+                    laps.append(line [:-1])
+
+            #if the list is less than 5 then it will only print the number of times in the list
+            if len(laps) < 5:
+                lap_top_scores = len(laps)
+            #if the list is zero, then no data will show
+            if len(laps) == 0:
+                draw_text(100, 250, 35, (61, 79, 31), screen, 'No data available yet')
+            else:
+                # for the top five times, print it to the screen
+                for i in range (lap_top_scores):
+                    draw_text(100, 250+(i*35), 35, (61,79,31), screen, (str(i+1) + ': ' + laps[i]))
+            #opens total file to read
+            with open ('Total_Leaderboard.txt', 'r') as file:
+                for line in file:
+                    #adds time to the totals list - taking away the last letter ('\n')
+                    totals.append(line [:-1])
+
+            # if the list is less than 5 then it will only print the number of times in the list
+            if len(totals) < 5:
+                total_top_scores = len(totals)
+            #if the list is zero then no data will show
+            if len(totals) == 0:
+                draw_text(450, 250, 35, (61, 79, 31), screen, 'No data available yet')
+            else:
+                # for the top five times, print it to the screen
+                for j in range (total_top_scores):
+                    draw_text(450, 250+(j*35), 35, (61, 79, 31), screen, (str(j+1) + ': ' + totals[j]))
+
+            if keys[pygame.K_BACKSPACE]:
+                self.menu_screen(home = False)
 
 
-
-
-
+            pygame.display.flip()
+            pygame.display.update()
 
 
     #game finished screen - depending if you crashed or not
     def game_over(self, lap_times, crashed, running = True):
         while running:
-            screen.fill((228, 76, 76))
-            keys = pygame.key.get_pressed()
-            draw_text(225, 150, 100, (0, 0, 0), screen, 'GAME OVER')
-            draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
-            draw_text(75, 375, 50, (0, 0, 0), screen, 'Press RETURN to restart the game')
             if crashed:
-                draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
+                screen.fill((228, 76, 76))
+            else:
+                screen.fill((240,178, 161))
+            keys = pygame.key.get_pressed()
+            draw_text(200, 150, 100, (0, 0, 0), screen, 'GAME OVER')
+            draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
+            if crashed:
+                draw_text(255, 225, 75, (0, 0, 0), screen, 'You Crashed')
             elif not crashed:
                 for i in range (0, 3):
                     #prints lap times
-                    draw_text(275, 350 + (i*30), 50, (0,0,0), screen, 'lap' + str(i+1) + ':' + lap_times[i])
+                    draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'lap' + str(i+1) + ': ' + lap_times[i])
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
             #goes back to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
-            if keys[pygame.K_RETURN]:
-                self.playing_screen()
 
 
             pygame.display.flip()
