@@ -34,8 +34,6 @@ class Game:
 
             screen.fill((105, 228, 146))
             draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
-            draw_text(260, 350, 50, (61, 79, 31), screen, 'Press P to PLAY')
-            draw_text(230, 425, 50, (61, 79, 31), screen, 'Press M for the MENU')
             draw_text(260, 500, 50, (61, 79, 31), screen, 'Press Q to QUIT')
 
             for event in pygame.event.get():
@@ -72,11 +70,15 @@ class Game:
 
             #only if a username is entered, can you play the game
             if user_input:
+                draw_text(260, 350, 50, (61, 79, 31), screen, 'Press P to PLAY')
+                draw_text(230, 425, 50, (61, 79, 31), screen, 'Press M for the MENU')
                 #for menu screen
                 if keys[pygame.K_m]:
+                    username = username[:-1]
                     self.menu_screen(home = True)
                 #for game screen
                 if keys[pygame.K_p]:
+                    username = username[:-1]
                     self.playing_screen()
             #to leave the game
             if keys[pygame.K_q]:
