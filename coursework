@@ -464,6 +464,7 @@ class Game:
             keys = pygame.key.get_pressed()
             draw_text(225, 150, 100, (0, 0, 0), screen, 'GAME OVER')
             draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
+            draw_text(75, 375, 50, (0, 0, 0), screen, 'Press RETURN to restart the game')
             if crashed:
                 draw_text(275, 225, 75, (0, 0, 0), screen, 'You Crashed')
             elif not crashed:
@@ -476,6 +477,8 @@ class Game:
             #goes back to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
+            if keys[pygame.K_RETURN]:
+                self.playing_screen()
 
 
             pygame.display.flip()
