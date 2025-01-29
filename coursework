@@ -1,5 +1,5 @@
 import pygame
-from pygame import K_BACKSPACE, K_RETURN
+
 
 #initial setup of screen
 pygame.init()
@@ -17,29 +17,6 @@ def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
     text = font.render(message, True, color)
     surface.blit(text, (x_pos, y_pos))
-
-
-def leaderboard(running = True):
-    while running:
-        screen.fill((105, 228, 146))
-        keys = pygame.key.get_pressed()
-        draw_text(215,150, 100, (61, 79, 31), screen, 'LEADERBOARD')
-        laps = list()
-        totals = list()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-        #if keys[pygame.K_BACKSPACE]:
-         #   self.menu_screen(home = False)
-        #with open('Lap_Leaderboard.txt', 'r') as file:
-         #   for line in file:
-          #      laps.append(line)
-            #read the lap file and print the top 5
-        #with open('Total_Leaderboard.txt', 'r') as file:
-         #   for line in file:
-          #      totals.append(line)
-            #read the total lap file and print the top 5
-
 
 class Game:
     def __init__(self):
@@ -126,7 +103,6 @@ class Game:
         tyre_wall_hori = pygame.transform.scale(tyre_wall_hori, (800, 40))
         finish = pygame.image.load("Finish line.png")
         finish = pygame.transform.scale(finish, (450, 30))
-
         car_one = pygame.image.load("pitstop_car_1.png")
         car_one = pygame.transform.scale(car_one, (40, 80))
         car_one = pygame.transform.rotate(car_one, 180)
@@ -326,7 +302,10 @@ class Game:
                     print('game over')
                     self.game_over(lap_times, crashed = True)
 
-
+            finish_rect = finish.get_rect(topleft=(x + 175, y + 200))
+            if car_rect.colliderect(finish_rect):
+                if y_change <= 0:
+                    y = y + 15
 
             # Accelerate.
             x_change += accel_x
@@ -358,7 +337,7 @@ class Game:
             elapsed_time = end_time - start_time
 
             #timings
-            finish_rect = finish.get_rect(topleft=(x + 175, y + 200))
+
             ms = int(elapsed_time % 1000)
             s = int(elapsed_time / 1000 % 60)
             m = int(elapsed_time / 60000 % 60)
@@ -438,29 +417,35 @@ class Game:
 
     #menu screen
     def menu_screen(self, home, running = True):
+        keys = pygame.key.get_pressed()
+        paused = True
+        while paused:
+            if keys[pygame.K_p]:
+                paused = False
         #need to add ability to resume game where it was paused
-        while running:
-            screen.fill((105, 228, 146))
-            keys = pygame.key.get_pressed()
-            draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
-            draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
-            draw_text(150, 325, 50, (61, 79, 31), screen, 'Press l to see the leaderboard')
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
 
-            if keys[pygame.K_BACKSPACE]:
-                self.start_screen()
 
-            if keys[pygame.K_l]:
-                self.leaderboard()
+        #if not home:
+         #   paused = True
+          #  while paused:
+                #draw_text(200, 225, 50, (61, 79, 31), screen, 'Press ESCAPE to restart')
+                #goes back to playing screen (restarts) - need to carry on where it left off
+            #if keys[pygame.K_ESCAPE]:
+                    #self.playing_screen()
+             #   paused = False
+            #screen.fill((105, 228, 146))
+            #draw_text(300, 150, 100, (61, 79, 31), screen,'MENU')
+            #draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
+            #draw_text(150, 325, 50, (61, 79, 31), screen, 'Press l to see the leaderboard')
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
+            #if keys[pygame.K_BACKSPACE]:
+             #   self.start_screen()
 
-            if not home:
-                draw_text(200, 225, 50, (61, 79, 31), screen, 'Press ESCAPE to restart')
-                #goes back to playing screen (restarts)
-                if keys[pygame.K_ESCAPE]:
-                    self.playing_screen()
+            #if keys[pygame.K_l]:
+             #   self.leaderboard()
 
             pygame.display.flip()
             pygame.display.update()
@@ -518,7 +503,7 @@ class Game:
                     draw_text(450, 250+(j*35), 35, (61, 79, 31), screen, (str(j+1) + ': ' + totals[j]))
 
             if keys[pygame.K_BACKSPACE]:
-                self.menu_screen(home = False)
+                self.menu_screen(home = True)
 
 
             pygame.display.flip()
