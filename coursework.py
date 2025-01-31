@@ -174,7 +174,9 @@ class Game:
         start_time = pygame.time.get_ticks()
         lap_times = []
         is_paused = False
-        
+        net_elapsed_time = 0
+        paused_time = 0
+        total_paused_time = 0
 
 
         while running:
@@ -352,12 +354,23 @@ class Game:
                             pygame.quit()
                     # check for the p key to unpause the game
                     is_paused = not pygame.key.get_pressed()[pygame.K_RETURN]
-                
+                #gets the time
+                end_pause = pygame.time.get_ticks()
+                end_time = pygame.time.get_ticks()
+                elapsed_time = end_time - start_time
+
+                #finds the difference between the times whilst it is paused - the paused time
+                paused_time = end_pause - start_pause
+                #adds all paused times together
+                total_paused_time = total_paused_time + paused_time
+
+            #finds the time that has passed, when not paused
+            net_elapsed_time = elapsed_time - total_paused_time
 
             #prints the time
-            ms = int(elapsed_time % 1000)
-            s = int(elapsed_time / 1000 % 60)
-            m = int(elapsed_time / 60000 % 60)
+            ms = int(net_elapsed_time % 1000)
+            s = int(net_elapsed_time / 1000 % 60)
+            m = int(net_elapsed_time / 60000 % 60)
 
             #format the time
             time = f'{m}:{s}:{ms}'
