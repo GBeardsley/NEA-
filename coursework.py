@@ -1,4 +1,5 @@
 import pygame
+import random
 
 
 #initial setup of screen
@@ -99,13 +100,22 @@ class Game:
         tyre_wall = pygame.image.load("tyre wall - straight green.png")
         tyre_wall = pygame.transform.scale(tyre_wall, (40, 600))
         gravel_trap = pygame.image.load("gravel trap.png")
-        tyre_wall_hori = pygame.transform.rotate(tyre_wall, (90))
+        tyre_wall_hori = pygame.transform.rotate(tyre_wall, 90)
         tyre_wall_hori = pygame.transform.scale(tyre_wall_hori, (800, 40))
         finish = pygame.image.load("Finish line.png")
         finish = pygame.transform.scale(finish, (450, 30))
         car_one = pygame.image.load("pitstop_car_1.png")
         car_one = pygame.transform.scale(car_one, (40, 80))
         car_one = pygame.transform.rotate(car_one, 180)
+        start1 = pygame.image.load("sem_1_red.png")
+        start1 = pygame.transform.scale(start1, (300, 200))
+        start2 = pygame.image.load("sem_2_red.png")
+        start2 = pygame.transform.scale(start2, (300,200))
+        start3 = pygame.image.load("sem_3_red.png")
+        start3 = pygame.transform.scale(start3, (300, 200))
+        start_go = pygame.image.load("sem_all_green.png")
+        start_go = pygame.transform.scale(start_go, (300, 200))
+
         CONST_CAR_ONE = car_one
 
         global username
@@ -173,13 +183,26 @@ class Game:
         lapclock.tick()
         start_time = pygame.time.get_ticks()
         lap_times = []
-        is_paused = False
-        net_elapsed_time = 0
-        paused_time = 0
         total_paused_time = 0
+        crossed_start = 0
+        image_time = 0
 
+        #pygame.time.set_timer(nextlight, 1000)
+
+        #while start:
+         #   screen.blit(start1, (250, 100))
+          #  pygame.time.delay(1000)
+           # screen.blit(start2, (250, 100))
+            #pygame.time.delay(1000)
+         #   screen.blit(start3, (250, 100))
+          #  pygame.time.delay(1000)
+           # screen.blit(start_go, (250, 100))
+            #start = False
+
+        #pygame.time.delay(1000)
 
         while running:
+
 
             font = pygame.font.Font(None, 30)
             clock.tick(FPS)
@@ -352,6 +375,7 @@ class Game:
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
+
                     # check for the p key to unpause the game
                     is_paused = not pygame.key.get_pressed()[pygame.K_RETURN]
                 #gets the time
@@ -389,22 +413,30 @@ class Game:
                 lap_time = lapclock.get_time()
                 ms = int(lap_time % 1000)
                 s = int(lap_time / 1000 % 60)
+                crossed_start = crossed_start + 1
                 #m = int(lap_time / 60000 % 60)
+                #check if lap has been 2 seconds
                 if lap_time < 2000:
                     pass
                 else:
+                    #changes the milliseconds to 3 digits long
                     while len(str(ms)) < 3:
-                        ms = '0' + str(ms)
+                        ms = str(ms) + '0'
+                    #changes the seconds to 2 digits long
                     if len(str(s)) == 1:
                         s = '0' + str(s)
 
-                    #format the lap time
-                    lap_time = f'{s}:{ms}'
-                    print('lap', lap_counter, ':', lap_time)
-                    lap_counter = lap_counter + 1
-                    #add lap time to the list of lap times
-                    lap_times.append(lap_time)
-                    print(lap_times)
+                    #check to see how many times the finish line has been crossed
+                    if crossed_start < 2:
+                        pass
+                    else:
+                       #format the lap time
+                        lap_time = f'{s}:{ms}'
+                        print('lap', lap_counter, ':', lap_time)
+                        lap_counter = lap_counter + 1
+                        #add lap time to the list of lap times
+                        lap_times.append(lap_time)
+                        print(lap_times)
 
             #only allows 3 laps to happen
             if lap_counter == 4:
@@ -431,6 +463,7 @@ class Game:
                 #end the game
                 self.game_over(lap_times, crashed = False)
 
+
             #finds the speed using pythagoras
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
             #converts to a string
@@ -451,6 +484,18 @@ class Game:
             screen.blit(lap_number, (50, 10))
             #time
             screen.blit(time_text, (370, 100))
+            image_time += 1
+            if image_time < 50:
+                screen.blit(start1, (250, 100))
+            elif image_time < 100:
+                screen.blit(start2, (250, 100))
+            elif image_time < 150:
+                screen.blit(start3, (250, 100))
+            elif image_time < random.randint(190, 240):
+                #bug
+                screen.blit(start_go, (250, 100))
+
+
 
             pygame.display.flip()
             pygame.display.update()
@@ -467,11 +512,6 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-
-
-                    #draw_text(200, 225, 50, (61, 79, 31), screen, 'Press ESCAPE to restart')
-                #goes back to playing screen (restarts) - need to carry on where it left off
-
 
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
@@ -557,7 +597,26 @@ class Game:
             elif not crashed:
                 for i in range (0, 3):
                     #prints lap times
-                    draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'lap' + str(i+1) + ': ' + lap_times[i])
+                    draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
+                # add a total time as well
+                #a celebration screen
+                #found = False
+               # with open ('Lap_Leaderboard.txt', 'r') as file:
+                #    for i in range (0, 3):
+                 #       #top 5
+                  #      for j in range (0,5) :
+                  #          line = file.readline(j)
+                   #         if lap_times[i] == line[:-6]:
+                    #            print('found')
+                     #           found = True
+                   #     if found:
+                    #        #top 3
+                     #       for j in range (0,3):
+                      #          line = file.readline(j)
+                       #         if lap_times[i] == line[:-6]:
+                        #            print('found')
+                                #celebration animation
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
