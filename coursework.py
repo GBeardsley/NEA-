@@ -18,6 +18,7 @@ username = ''
 
 top_speed_sound = pygame.mixer.Sound('Top speed sound.mp3')
 accelerate_sound = pygame.mixer.Sound('acceleration sound.mp3')
+accelerate_sound.set_volume(0.5)
 decelerate_sound = pygame.mixer.Sound('deceleration sound.mp3')
 crash_sound = pygame.mixer.Sound('crash sound.mp3')
 
@@ -193,7 +194,6 @@ class Game:
         total_paused_time = 0
         crossed_start = 0
         image_time = 0
-        prev_speed = 0
 
         while running:
 
@@ -207,25 +207,30 @@ class Game:
             #line1 - where to read the colour of the pixel from
             #line2 - amending acceleration
             #line3 - the way it is facing
+            #line4 - accelerate sound
             if keys[pygame.K_w]:
                 color_position = (400, 350)
                 accel_y = 0.2
                 direction = 0
+                accelerate_sound.play()
 
             if keys[pygame.K_s]:
                 color_position = (400, 250)
                 accel_y = -0.2
                 direction = 180
+                accelerate_sound.play()
 
             if keys[pygame.K_a]:
                 color_position = (450, 300)
                 accel_x = 0.2
                 direction = 90
+                accelerate_sound.play()
 
             if keys[pygame.K_d]:
                 color_position = (350, 300)
                 accel_x = -0.2
                 direction = 270
+                accelerate_sound.play()
 
             if keys[pygame.K_w] and keys[pygame.K_d]:
                 direction = 315
@@ -252,9 +257,11 @@ class Game:
                 accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
             #prints the color at the corresponding position
-            #for testing
+            #for testing and usefulness
             if keys[pygame.K_e]:
+                #egts the coordinates of the color position
                 color_position = int(color_position[0]), int(color_position[1])
+                #gets the colour at coordinates
                 print(screen.get_at(color_position))
 
             for event in pygame.event.get():
@@ -262,8 +269,12 @@ class Game:
                     pygame.quit()
                 #when no button is pressed the car decelerates
                 if event.type == pygame.KEYUP:
+                    #stops accelerate sound
+                    accelerate_sound.stop()
+                    #makes x acceleration 0 if d or a are not pressed
                     if event.key in (pygame.K_d, pygame.K_a):
                         accel_x = 0
+                    #makes y acceleration 0 if w or s are not pressed
                     elif event.key in (pygame.K_w, pygame.K_s):
                         accel_y = 0
                     #plays deceleration sound
@@ -273,14 +284,11 @@ class Game:
                     decelerate_sound.stop()
 
 
-            #self.menu_screen(home = False)
-
             #car faces the correct direction
             direction_change = direction - start_direction
             if direction_change != 0:
                 car_one = pygame.transform.rotate(CONST_CAR_ONE, direction)
 
-            #gets the pixel colour at the correct x and y coordinates
             color_position = int(color_position[0]), int(color_position[1])
             pixel_color = screen.get_at(color_position)
             #changes the max speed depending on the colour of the pixel the car is on
@@ -298,9 +306,11 @@ class Game:
             for i in range (-600, 1800, 600): #1800 because plus one
                 tyre_rect = tyre_wall.get_rect(topleft = (x+1600, y+i))
                 if car_rect.colliderect(tyre_rect):
+                    #if car is going right
                     if x_change >= 0:
                         #moves the car back by 8
                         x = x - 8
+                    #if car is going left
                     elif x_change <= 0:
                         x = x + 8
                     hit = True
@@ -326,11 +336,17 @@ class Game:
 
             # add or for diagonals
             if hit:
+                #if the car is traveling faster than 3
                 if x_change >= 3 or y_change >= 3 :
                     print('game over')
+                    #stops the current sounds and starts the crash sound
+                    accelerate_sound.stop()
+                    decelerate_sound.stop()
                     crash_sound.play()
+                    #calls game over screen
                     self.game_over(lap_times, crashed = True)
 
+            #temporary fix to reverse laps
             finish_rect = finish.get_rect(topleft=(x + 175, y + 200))
             if car_rect.colliderect(finish_rect):
                 if y_change <= 0:
@@ -339,14 +355,6 @@ class Game:
             # Accelerate.
             x_change += accel_x
             y_change += accel_y
-
-            if abs(x_change) > prev_speed:
-                accelerate_sound.play()
-            elif abs(y_change) > prev_speed:
-                accelerate_sound.play()
-            else:
-                accelerate_sound.stop()
-
 
             #when the acceleration is 0 (when no button is pressed) x value decreases by 0.92 of current value
             if accel_x == 0:
@@ -479,6 +487,7 @@ class Game:
 
             #sounds for top speed
             if total_speed == 15:
+                accelerate_sound.stop()
                 top_speed_sound.play()
                 #plays sound from beginning
             else:
@@ -493,7 +502,7 @@ class Game:
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
             time_text = font.render(time, True, (255, 255, 255))
             lap_number = font.render(('Lap: ' + str(lap_counter)), True, (255, 0, 0))
-            prev_speed = int(total_speed)
+
             #white background
             screen.fill((255, 255, 255))
             #circuit background
