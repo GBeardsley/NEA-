@@ -1,9 +1,11 @@
 import pygame
 import random
 
+from pygame import mixer
 
 #initial setup of screen
 pygame.init()
+mixer.init()
 FPS = 60
 screen_width = 800
 screen_height = 600
@@ -13,6 +15,11 @@ pygame.display.set_caption("Retro Racer")
 clock = pygame.time.Clock()
 lapclock = pygame.time.Clock()
 username = ''
+
+top_speed_sound = pygame.mixer.Sound('Top speed sound.mp3')
+accelerate_sound = pygame.mixer.Sound('acceleration sound.mp3')
+decelerate_sound = pygame.mixer.Sound('deceleration sound.mp3')
+crash_sound = pygame.mixer.Sound('crash sound.mp3')
 
 def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
@@ -186,20 +193,7 @@ class Game:
         total_paused_time = 0
         crossed_start = 0
         image_time = 0
-
-        #pygame.time.set_timer(nextlight, 1000)
-
-        #while start:
-         #   screen.blit(start1, (250, 100))
-          #  pygame.time.delay(1000)
-           # screen.blit(start2, (250, 100))
-            #pygame.time.delay(1000)
-         #   screen.blit(start3, (250, 100))
-          #  pygame.time.delay(1000)
-           # screen.blit(start_go, (250, 100))
-            #start = False
-
-        #pygame.time.delay(1000)
+        #mixer.music.play() # plays sound once when game starts - as expected
 
         while running:
 
@@ -351,12 +345,14 @@ class Game:
             #stops the car exceeding 15 speed
             if abs(x_change) >= max_speed:
                 x_change = x_change / abs(x_change) * max_speed
+                
             if abs(y_change) >= max_speed:
                 y_change = y_change / abs(y_change) * max_speed
+                
             if abs(x_change) >= (max_speed * ((2 ** (1 / 2)) / 2)) and abs(y_change) >= (max_speed * ((2 ** (1 / 2)) / 2)):
                 x_change = x_change / abs(x_change) * (max_speed * ((2 ** (1 / 2)) / 2))
                 y_change = y_change / abs(y_change) * (max_speed * ((2 ** (1 / 2)) / 2))
-
+                
             # Move the object.
             x += x_change
             y += y_change
@@ -466,6 +462,10 @@ class Game:
 
             #finds the speed using pythagoras
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
+            if total_speed == 15:
+                top_speed_sound.play()
+            else:
+                top_speed_sound.stop()
             #converts to a string
             total_speed = str(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
@@ -484,6 +484,7 @@ class Game:
             screen.blit(lap_number, (50, 10))
             #time
             screen.blit(time_text, (370, 100))
+
             image_time += 1
             if image_time < 50:
                 screen.blit(start1, (250, 100))
@@ -491,9 +492,14 @@ class Game:
                 screen.blit(start2, (250, 100))
             elif image_time < 150:
                 screen.blit(start3, (250, 100))
-            elif image_time < random.randint(190, 240):
-                #bug
+            elif image_time < 200:
                 screen.blit(start_go, (250, 100))
+
+
+            #elif image_time < random.randint(190, 240):
+                #bug - works without random
+#                screen.blit(start_go, (250, 100))
+            #random number would have to be outside the while loop else it keeps changing
 
 
 
@@ -598,24 +604,7 @@ class Game:
                 for i in range (0, 3):
                     #prints lap times
                     draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
-                # add a total time as well
-                #a celebration screen
-                #found = False
-               # with open ('Lap_Leaderboard.txt', 'r') as file:
-                #    for i in range (0, 3):
-                 #       #top 5
-                  #      for j in range (0,5) :
-                  #          line = file.readline(j)
-                   #         if lap_times[i] == line[:-6]:
-                    #            print('found')
-                     #           found = True
-                   #     if found:
-                    #        #top 3
-                     #       for j in range (0,3):
-                      #          line = file.readline(j)
-                       #         if lap_times[i] == line[:-6]:
-                        #            print('found')
-                                #celebration animation
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
