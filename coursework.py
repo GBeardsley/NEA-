@@ -193,6 +193,7 @@ class Game:
         total_paused_time = 0
         crossed_start = 0
         image_time = 0
+        prev_speed = 0
 
         while running:
 
@@ -339,6 +340,14 @@ class Game:
             x_change += accel_x
             y_change += accel_y
 
+            if abs(x_change) > prev_speed:
+                accelerate_sound.play()
+            elif abs(y_change) > prev_speed:
+                accelerate_sound.play()
+            else:
+                accelerate_sound.stop()
+
+
             #when the acceleration is 0 (when no button is pressed) x value decreases by 0.92 of current value
             if accel_x == 0:
                 x_change *= 0.92
@@ -477,13 +486,14 @@ class Game:
                 #stops sound
             if total_speed == 0:
                 decelerate_sound.stop()
+                accelerate_sound.stop()
 
             #converts to a string
             total_speed = str(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
             time_text = font.render(time, True, (255, 255, 255))
             lap_number = font.render(('Lap: ' + str(lap_counter)), True, (255, 0, 0))
-
+            prev_speed = int(total_speed)
             #white background
             screen.fill((255, 255, 255))
             #circuit background
@@ -616,7 +626,24 @@ class Game:
                 for i in range (0, 3):
                     #prints lap times
                     draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
-             
+                # add a total time as well
+                #a celebration screen
+                #found = False
+               # with open ('Lap_Leaderboard.txt', 'r') as file:
+                #    for i in range (0, 3):
+                 #       #top 5
+                  #      for j in range (0,5) :
+                  #          line = file.readline(j)
+                   #         if lap_times[i] == line[:-6]:
+                    #            print('found')
+                     #           found = True
+                   #     if found:
+                    #        #top 3
+                     #       for j in range (0,3):
+                      #          line = file.readline(j)
+                       #         if lap_times[i] == line[:-6]:
+                        #            print('found')
+                                #celebration animation
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
