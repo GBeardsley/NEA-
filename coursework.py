@@ -193,7 +193,6 @@ class Game:
         total_paused_time = 0
         crossed_start = 0
         image_time = 0
-        #mixer.music.play() # plays sound once when game starts - as expected
 
         while running:
 
@@ -266,6 +265,11 @@ class Game:
                         accel_x = 0
                     elif event.key in (pygame.K_w, pygame.K_s):
                         accel_y = 0
+                    #plays deceleration sound
+                    decelerate_sound.play()
+                else:
+                    #stops playing deceleration sound if it was on
+                    decelerate_sound.stop()
 
 
             #self.menu_screen(home = False)
@@ -323,6 +327,7 @@ class Game:
             if hit:
                 if x_change >= 3 or y_change >= 3 :
                     print('game over')
+                    crash_sound.play()
                     self.game_over(lap_times, crashed = True)
 
             finish_rect = finish.get_rect(topleft=(x + 175, y + 200))
@@ -345,14 +350,14 @@ class Game:
             #stops the car exceeding 15 speed
             if abs(x_change) >= max_speed:
                 x_change = x_change / abs(x_change) * max_speed
-                
+
             if abs(y_change) >= max_speed:
                 y_change = y_change / abs(y_change) * max_speed
-                
+
             if abs(x_change) >= (max_speed * ((2 ** (1 / 2)) / 2)) and abs(y_change) >= (max_speed * ((2 ** (1 / 2)) / 2)):
                 x_change = x_change / abs(x_change) * (max_speed * ((2 ** (1 / 2)) / 2))
                 y_change = y_change / abs(y_change) * (max_speed * ((2 ** (1 / 2)) / 2))
-                
+
             # Move the object.
             x += x_change
             y += y_change
@@ -462,10 +467,17 @@ class Game:
 
             #finds the speed using pythagoras
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
+
+            #sounds for top speed
             if total_speed == 15:
                 top_speed_sound.play()
+                #plays sound from beginning
             else:
                 top_speed_sound.stop()
+                #stops sound
+            if total_speed == 0:
+                decelerate_sound.stop()
+
             #converts to a string
             total_speed = str(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
@@ -604,7 +616,7 @@ class Game:
                 for i in range (0, 3):
                     #prints lap times
                     draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
-
+             
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
