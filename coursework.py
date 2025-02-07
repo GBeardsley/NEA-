@@ -1,6 +1,7 @@
 import pygame
 import random
 
+from Scripts.activate_this import prev_length
 from pygame import mixer
 
 #initial setup of screen
@@ -15,12 +16,15 @@ pygame.display.set_caption("Retro Racer")
 clock = pygame.time.Clock()
 lapclock = pygame.time.Clock()
 username = ''
+pygame.mixer.set_num_channels(1)
 
 top_speed_sound = pygame.mixer.Sound('Top speed sound.mp3')
 accelerate_sound = pygame.mixer.Sound('acceleration sound.mp3')
 accelerate_sound.set_volume(0.5)
 decelerate_sound = pygame.mixer.Sound('deceleration sound.mp3')
 crash_sound = pygame.mixer.Sound('crash sound.mp3')
+pygame.mixer.music.load('background.mp3')
+pygame.mixer.music.play(-1)
 
 def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
@@ -34,6 +38,7 @@ class Game:
 
     #start screen
     def start_screen(self):
+        pygame.mixer.music.unpause()
         running = True
         user_input = False
         global username
@@ -98,6 +103,7 @@ class Game:
 
     #game screen
     def playing_screen(self, running = True):
+        pygame.mixer.music.pause()
         #images
         up_straight = pygame.image.load("straight 2.png")
         t_three = pygame.image.load("curve 3.png")
@@ -194,6 +200,7 @@ class Game:
         total_paused_time = 0
         crossed_start = 0
         image_time = 0
+        prev_speed = 0
 
         while running:
 
@@ -212,25 +219,25 @@ class Game:
                 color_position = (400, 350)
                 accel_y = 0.2
                 direction = 0
-                accelerate_sound.play()
+                #accelerate_sound.play()
 
             if keys[pygame.K_s]:
                 color_position = (400, 250)
                 accel_y = -0.2
                 direction = 180
-                accelerate_sound.play()
+                #accelerate_sound.play()
 
             if keys[pygame.K_a]:
                 color_position = (450, 300)
                 accel_x = 0.2
                 direction = 90
-                accelerate_sound.play()
+                #accelerate_sound.play()
 
             if keys[pygame.K_d]:
                 color_position = (350, 300)
                 accel_x = -0.2
                 direction = 270
-                accelerate_sound.play()
+                #accelerate_sound.play()
 
             if keys[pygame.K_w] and keys[pygame.K_d]:
                 direction = 315
@@ -269,19 +276,12 @@ class Game:
                     pygame.quit()
                 #when no button is pressed the car decelerates
                 if event.type == pygame.KEYUP:
-                    #stops accelerate sound
-                    accelerate_sound.stop()
                     #makes x acceleration 0 if d or a are not pressed
                     if event.key in (pygame.K_d, pygame.K_a):
                         accel_x = 0
                     #makes y acceleration 0 if w or s are not pressed
                     elif event.key in (pygame.K_w, pygame.K_s):
                         accel_y = 0
-                    #plays deceleration sound
-                    decelerate_sound.play()
-                else:
-                    #stops playing deceleration sound if it was on
-                    decelerate_sound.stop()
 
 
             #car faces the correct direction
@@ -339,7 +339,7 @@ class Game:
                 #if the car is traveling faster than 3
                 if x_change >= 3 or y_change >= 3 :
                     print('game over')
-                    #stops the current sounds and starts the crash sound
+                    #stops the current sounds and plays the crash sound
                     accelerate_sound.stop()
                     decelerate_sound.stop()
                     crash_sound.play()
@@ -393,6 +393,8 @@ class Game:
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
+                        #if event.type == pygame.K_h:
+                         #   self.start_screen()
 
                     # check for the p key to unpause the game
                     is_paused = not pygame.key.get_pressed()[pygame.K_RETURN]
@@ -485,20 +487,37 @@ class Game:
             #finds the speed using pythagoras
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
 
+            if prev_speed > total_speed:
+                accelerate_sound.stop()
+                decelerate_sound.play()
+                #if prev_speed < total_speed:
+                 #   decelerate_sound.stop()
+                  #  accelerate_sound.play()
+            elif prev_speed < total_speed:
+                decelerate_sound.stop()
+                accelerate_sound.play()
+                #if prev_speed > total_speed:
+                 #   accelerate_sound.stop()
+                  #  decelerate_sound.play()
+
+
+
+
             #sounds for top speed
             if total_speed == 15:
                 accelerate_sound.stop()
                 top_speed_sound.play()
                 #plays sound from beginning
-            else:
-                top_speed_sound.stop()
-                #stops sound
-            if total_speed == 0:
+            elif total_speed == 0:
                 decelerate_sound.stop()
                 accelerate_sound.stop()
+            else:
+                top_speed_sound.stop()
+                # stops sound
 
             #converts to a string
             total_speed = str(total_speed)
+            prev_speed = int(total_speed)
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
             time_text = font.render(time, True, (255, 255, 255))
             lap_number = font.render(('Lap: ' + str(lap_counter)), True, (255, 0, 0))
@@ -527,18 +546,13 @@ class Game:
                 screen.blit(start_go, (250, 100))
 
 
-            #elif image_time < random.randint(190, 240):
-                #bug - works without random
-#                screen.blit(start_go, (250, 100))
-            #random number would have to be outside the while loop else it keeps changing
-
-
 
             pygame.display.flip()
             pygame.display.update()
 
     #menu screen
     def menu_screen(self, home, running = True):
+        pygame.mixer.music.unpause()
         while running:
             screen.fill((105, 228, 146))
             draw_text(300, 150, 100, (61, 79, 31), screen, 'MENU')
