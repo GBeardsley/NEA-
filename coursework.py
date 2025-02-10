@@ -1,3 +1,5 @@
+from functools import total_ordering
+
 import pygame
 import random
 
@@ -446,6 +448,7 @@ class Game:
                     if len(str(s)) == 1:
                         s = '0' + str(s)
 
+
                     #check to see how many times the finish line has been crossed
                     if crossed_start < 2:
                         pass
@@ -469,16 +472,31 @@ class Game:
                         file.write(lap_times[i] + ' - ' + username + '\n')
 
                 times = list()
-                # open file to read and write
+                total_times = list()
+                # open file to read
                 with open('Lap_Leaderboard.txt', 'r') as file:
                     for line in file:
                         # adds time to list of times
                         times.append(line)
                     # sorts the list
                     times.sort()
+                #open file to write
                 with open('Lap_Leaderboard.txt', 'w') as file:
+                    #writes the sorted list back into the text file
                     for time in times:
                         file.write(time)
+                #opens total times to read
+                with open('Total_Leaderboard.txt', 'r') as file:
+                   for line in file:
+                       #adds time to list
+                       total_times.append(line)
+                   #sorts list
+                   total_times.sort()
+                #opens file to write
+                with open('Total_Leaderboard.txt', 'w') as file:
+                   #writes the sorted list back into the text file
+                   for time in total_times:
+                       file.write(time)
 
                 #end the game
                 self.game_over(lap_times, crashed = False)
