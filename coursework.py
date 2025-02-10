@@ -1,9 +1,5 @@
-from functools import total_ordering
-
 import pygame
 import random
-
-from Scripts.activate_this import prev_length
 from pygame import mixer
 
 #initial setup of screen
@@ -27,6 +23,31 @@ decelerate_sound = pygame.mixer.Sound('deceleration sound.mp3')
 crash_sound = pygame.mixer.Sound('crash sound.mp3')
 pygame.mixer.music.load('background.mp3')
 pygame.mixer.music.play(-1)
+
+grass_1 = pygame.image.load('grass 1.png')
+grass_2 = pygame.image.load('grass 2.png')
+grass_3 = pygame.image.load('grass 3.png')
+grass_4 = pygame.image.load('grass 4.png')
+grass_5 = pygame.image.load('grass 5.png')
+grass_6 = pygame.image.load('grass 6.png')
+
+gravel_1 = pygame.image.load('gravel 1.png')
+gravel_2 = pygame.image.load('gravel 2.png')
+gravel_3 = pygame.image.load('gravel 3.png')
+gravel_4 = pygame.image.load('gravel 4.png')
+gravel_5 = pygame.image.load('gravel 5.png')
+gravel_6 = pygame.image.load('gravel 6.png')
+
+
+grass_animation_imgs = [grass_1, grass_2, grass_3, grass_4, grass_5, grass_6]
+gravel_animation_imgs = [gravel_1, gravel_2, gravel_3, gravel_4, gravel_5, gravel_6]
+for i in range(len(grass_animation_imgs)):
+    image = pygame.transform.scale(grass_animation_imgs[i], (50, 50))
+    grass_animation_imgs[i] = image
+for i in range(len(gravel_animation_imgs)):
+    image = pygame.transform.scale(gravel_animation_imgs[i], (50,50))
+    gravel_animation_imgs[i] = image
+
 
 def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
@@ -186,6 +207,9 @@ class Game:
             screen.blit(tyre_wall_hori, (x + 1600, y + 2360))
             screen.blit(finish, (x + 175, y + 100))
 
+        #def gravel_animation(iteration):
+
+
         #variables
         x = 0
         y = 0
@@ -203,6 +227,9 @@ class Game:
         crossed_start = 0
         image_time = 0
         prev_speed = 0
+        gravel_ani = False
+        grass_ani = False
+        iteration = 0
 
         while running:
 
@@ -218,50 +245,50 @@ class Game:
             #line3 - the way it is facing
             #line4 - accelerate sound
             if keys[pygame.K_w]:
-                color_position = (400, 350)
+                color_position = (375, 340)
                 accel_y = 0.2
                 direction = 0
                 #accelerate_sound.play()
 
             if keys[pygame.K_s]:
-                color_position = (400, 250)
+                color_position = (375, 210)
                 accel_y = -0.2
                 direction = 180
                 #accelerate_sound.play()
 
             if keys[pygame.K_a]:
-                color_position = (450, 300)
+                color_position = (440, 275)
                 accel_x = 0.2
                 direction = 90
                 #accelerate_sound.play()
 
             if keys[pygame.K_d]:
-                color_position = (350, 300)
+                color_position = (310, 275)
                 accel_x = -0.2
                 direction = 270
                 #accelerate_sound.play()
 
             if keys[pygame.K_w] and keys[pygame.K_d]:
                 direction = 315
-                color_position = (400 - (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
+                color_position = (355 - (25 * (2 ** (1 / 2))), 290 + (25 * (2 ** (1 / 2))))
                 accel_x = -(0.2 * ((2 ** (1 / 2)) / 2))
                 accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
             if keys[pygame.K_s] and keys[pygame.K_d]:
                 direction = 225
-                color_position = (400 - (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
+                color_position = (360 - (25 * (2 ** (1 / 2))), 260 - (25 * (2 ** (1 / 2))))
                 accel_x = -(0.2 * ((2 ** (1 / 2)) / 2))
                 accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
 
             if keys[pygame.K_s] and keys[pygame.K_a]:
                 direction = 135
-                color_position = (400 + (25 * (2 ** (1 / 2))), 300 - (25 * (2 ** (1 / 2))))
+                color_position = (390 + (25 * (2 ** (1 / 2))), 260 - (25 * (2 ** (1 / 2))))
                 accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
                 accel_y = -(0.2 * ((2 ** (1 / 2)) / 2))
 
             if keys[pygame.K_w] and keys[pygame.K_a]:
                 direction = 45
-                color_position = (400 + (25 * (2 ** (1 / 2))), 300 + (25 * (2 ** (1 / 2))))
+                color_position = (390 + (25 * (2 ** (1 / 2))), 290 + (25 * (2 ** (1 / 2))))
                 accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
                 accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
 
@@ -296,10 +323,14 @@ class Game:
             #changes the max speed depending on the colour of the pixel the car is on
             if pixel_color == (20, 160, 46, 255):
                 max_speed = 8
+                grass_ani = True
             elif pixel_color == (214, 200, 96, 255):
                 max_speed = 5
+                gravel_ani = True
             else:
                 max_speed = 15
+                grass_ani = False
+                gravel_ani = False
 
             hit = False
             #for car collisions
@@ -518,9 +549,6 @@ class Game:
                  #   accelerate_sound.stop()
                   #  decelerate_sound.play()
 
-
-
-
             #sounds for top speed
             if total_speed == 15:
                 accelerate_sound.stop()
@@ -552,7 +580,28 @@ class Game:
             screen.blit(lap_number, (50, 10))
             #time
             screen.blit(time_text, (370, 100))
+            #grass animations
+            if grass_ani:
+                #checks to see where in the list it is
+                if iteration > len(grass_animation_imgs) - 1:
+                    #if it is at the end, restart at the start of the list
+                    iteration = 0
+                grass_image = grass_animation_imgs[iteration]
+                #show the image at the position in the list, at the corresponding coordinates
+                screen.blit(grass_image, color_position)
+                iteration = iteration + 1
+            #gravel animation
+            if gravel_ani:
+                # checks to see where in the list it is
+                if iteration > len(gravel_animation_imgs) - 1:
+                    # if it is at the end, restart at the start of the list
+                    iteration = 0
+                gravel_image = gravel_animation_imgs[iteration]
+                # show the image at the position in the list, at the corresponding coordinates
+                screen.blit(gravel_image, color_position)
+                iteration = iteration + 1
 
+            #start sequence
             image_time += 1
             if image_time < 50:
                 screen.blit(start1, (250, 100))
