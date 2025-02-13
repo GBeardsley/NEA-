@@ -1,5 +1,4 @@
 import pygame
-import random
 from pygame import mixer
 
 #initial setup of screen
@@ -227,9 +226,9 @@ class Game:
         crossed_start = 0
         image_time = 0
         prev_speed = 0
-        gravel_ani = False
-        grass_ani = False
         iteration = 0
+        starting = True
+        starting_time = 0
 
         while running:
 
@@ -294,11 +293,11 @@ class Game:
 
             #prints the color at the corresponding position
             #for testing and usefulness
-            if keys[pygame.K_e]:
-                #egts the coordinates of the color position
-                color_position = int(color_position[0]), int(color_position[1])
-                #gets the colour at coordinates
-                print(screen.get_at(color_position))
+            #if keys[pygame.K_e]:
+             #   egts the coordinates of the color position
+              #  color_position = int(color_position[0]), int(color_position[1])
+               # gets the colour at coordinates
+                #print(screen.get_at(color_position))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -323,14 +322,10 @@ class Game:
             #changes the max speed depending on the colour of the pixel the car is on
             if pixel_color == (20, 160, 46, 255):
                 max_speed = 8
-                grass_ani = True
             elif pixel_color == (214, 200, 96, 255):
                 max_speed = 5
-                gravel_ani = True
             else:
                 max_speed = 15
-                grass_ani = False
-                gravel_ani = False
 
             hit = False
             #for car collisions
@@ -439,7 +434,7 @@ class Game:
                 #finds the difference between the times whilst it is paused - the paused time
                 paused_time = end_pause - start_pause
                 #adds all paused times together
-                total_paused_time = total_paused_time + paused_time
+                total_paused_time = total_paused_time + paused_time + starting_time
 
             #finds the time that has passed, when not paused
             net_elapsed_time = elapsed_time - total_paused_time
@@ -536,18 +531,15 @@ class Game:
             #finds the speed using pythagoras
             total_speed = int(((x_change ** 2) + (y_change ** 2)) ** (1 / 2))
 
+            #check if increasing speed
             if prev_speed > total_speed:
                 accelerate_sound.stop()
                 decelerate_sound.play()
-                #if prev_speed < total_speed:
-                 #   decelerate_sound.stop()
-                  #  accelerate_sound.play()
+            #check is decreasing the speed
             elif prev_speed < total_speed:
                 decelerate_sound.stop()
                 accelerate_sound.play()
-                #if prev_speed > total_speed:
-                 #   accelerate_sound.stop()
-                  #  decelerate_sound.play()
+
 
             #sounds for top speed
             if total_speed == 15:
@@ -572,6 +564,18 @@ class Game:
             screen.fill((255, 255, 255))
             #circuit background
             draw_all()
+            #check the pixel colour
+            pixel_color = screen.get_at(color_position)
+            #play the correct animation
+            if pixel_color == (20, 160, 46, 255):
+                gravel_ani = False
+                grass_ani = True
+            elif pixel_color == (214, 200, 96, 255):
+                grass_ani = False
+                gravel_ani = True
+            else:
+                grass_ani = False
+                gravel_ani = False
             #car
             screen.blit(car_one, car_rect)
             #speed
@@ -602,17 +606,22 @@ class Game:
                 iteration = iteration + 1
 
             #start sequence
+
             image_time += 1
-            if image_time < 50:
+            if image_time < 1000:
                 screen.blit(start1, (250, 100))
-            elif image_time < 100:
+            elif image_time < 2000:
                 screen.blit(start2, (250, 100))
-            elif image_time < 150:
+            elif image_time < 3000:
                 screen.blit(start3, (250, 100))
-            elif image_time < 200:
+            elif image_time < 4000:
                 screen.blit(start_go, (250, 100))
+            else: 
+                starting = False
 
-
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
 
             pygame.display.flip()
             pygame.display.update()
@@ -703,38 +712,26 @@ class Game:
     #game finished screen - depending if you crashed or not
     def game_over(self, lap_times, crashed, running = True):
         while running:
+            #if the user crashed show this screen
             if crashed:
                 screen.fill((228, 76, 76))
+            #if the user completes 3 laps, show this screen
             else:
-                screen.fill((240,178, 161))
+                screen.fill((240, 178, 161))
+
             keys = pygame.key.get_pressed()
             draw_text(200, 150, 100, (0, 0, 0), screen, 'GAME OVER')
             draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
+            # if the user crashed, show this screen
             if crashed:
                 draw_text(255, 225, 75, (0, 0, 0), screen, 'You Crashed')
+            #if the user completed 3 laps, show this screen
             elif not crashed:
                 for i in range (0, 3):
                     #prints lap times
                     draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
-                # add a total time as well
-                #a celebration screen
-                #found = False
-               # with open ('Lap_Leaderboard.txt', 'r') as file:
-                #    for i in range (0, 3):
-                 #       #top 5
-                  #      for j in range (0,5) :
-                  #          line = file.readline(j)
-                   #         if lap_times[i] == line[:-6]:
-                    #            print('found')
-                     #           found = True
-                   #     if found:
-                    #        #top 3
-                     #       for j in range (0,3):
-                      #          line = file.readline(j)
-                       #         if lap_times[i] == line[:-6]:
-                        #            print('found')
-                                #celebration animation
 
+            #exit game
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
