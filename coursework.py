@@ -228,7 +228,7 @@ class Game:
         prev_speed = 0
         iteration = 0
         starting = True
-        starting_time = 0
+        end_starting = 0
 
         while running:
 
@@ -434,10 +434,10 @@ class Game:
                 #finds the difference between the times whilst it is paused - the paused time
                 paused_time = end_pause - start_pause
                 #adds all paused times together
-                total_paused_time = total_paused_time + paused_time + starting_time
+                total_paused_time = total_paused_time + paused_time
 
             #finds the time that has passed, when not paused
-            net_elapsed_time = elapsed_time - total_paused_time
+            net_elapsed_time = elapsed_time - total_paused_time - 3000
 
             #prints the time
             ms = int(net_elapsed_time % 1000)
@@ -606,22 +606,25 @@ class Game:
                 iteration = iteration + 1
 
             #start sequence
+            while starting:
 
-            image_time += 1
-            if image_time < 1000:
-                screen.blit(start1, (250, 100))
-            elif image_time < 2000:
-                screen.blit(start2, (250, 100))
-            elif image_time < 3000:
-                screen.blit(start3, (250, 100))
-            elif image_time < 4000:
+                image_time += 1
+                if image_time < 1000:
+                    screen.blit(start1, (250, 100))
+                elif image_time < 2000:
+                    screen.blit(start2, (250, 100))
+                elif image_time < 3000:
+                    screen.blit(start3, (250, 100))
+                elif image_time > 3000:
+                    starting = False
+                pygame.display.update()
+
+            if pygame.time.get_ticks() < 4000:
                 screen.blit(start_go, (250, 100))
-            else: 
-                starting = False
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
 
             pygame.display.flip()
             pygame.display.update()
@@ -721,7 +724,8 @@ class Game:
 
             keys = pygame.key.get_pressed()
             draw_text(200, 150, 100, (0, 0, 0), screen, 'GAME OVER')
-            draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home.')
+            draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home')
+            draw_text(130, 450, 60, (0,0,0), screen, 'Press ENTER to play again')
             # if the user crashed, show this screen
             if crashed:
                 draw_text(255, 225, 75, (0, 0, 0), screen, 'You Crashed')
@@ -738,6 +742,8 @@ class Game:
             #goes back to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
+            if keys[pygame.K_RETURN]:
+                self.playing_screen()
 
 
             pygame.display.flip()
