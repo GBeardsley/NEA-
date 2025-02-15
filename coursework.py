@@ -9,6 +9,8 @@ screen_width = 800
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Retro Racer")
+sound_volume = 0.5
+music_volume = 0.5
 #timers
 clock = pygame.time.Clock()
 lapclock = pygame.time.Clock()
@@ -16,12 +18,17 @@ username = ''
 pygame.mixer.set_num_channels(1)
 
 top_speed_sound = pygame.mixer.Sound('Top speed sound.mp3')
+top_speed_sound.set_volume(sound_volume+0.5)
 accelerate_sound = pygame.mixer.Sound('acceleration sound.mp3')
-accelerate_sound.set_volume(0.5)
+accelerate_sound.set_volume(sound_volume)
 decelerate_sound = pygame.mixer.Sound('deceleration sound.mp3')
+decelerate_sound.set_volume(sound_volume +0.5)
 crash_sound = pygame.mixer.Sound('crash sound.mp3')
+crash_sound.set_volume(sound_volume + 0.5)
 pygame.mixer.music.load('background.mp3')
+pygame.mixer.music.set_volume(music_volume)
 pygame.mixer.music.play(-1)
+
 
 grass_1 = pygame.image.load('grass 1.png')
 grass_2 = pygame.image.load('grass 2.png')
@@ -416,16 +423,27 @@ class Game:
                 is_paused = True
                 #gets the time
                 start_pause = pygame.time.get_ticks()
+                #paused screen actions
                 while is_paused:
+                    keys = pygame.key.get_pressed()
+                    screen.fill((105, 228, 146))
+                    #screen text
+                    draw_text(275,100, 100, (61,79,31), screen, 'PAUSED')
+                    draw_text(200,325, 50, (61,79,31), screen, 'Press RETURN to resume')
+                    draw_text(198,375,50, (61,79,31,), screen, 'Press Q to leave the game')
+                    draw_text(250,415, 30, (61,79,31,), screen, '(All current progress will be lost)')
                     # check for the game closing
+                    #check for keyboard inputs
                     for event in pygame.event.get():
                         if event.type == pygame.QUIT:
                             pygame.quit()
-                        #if event.type == pygame.K_h:
-                         #   self.start_screen()
-
-                    # check for the p key to unpause the game
+                        if keys[pygame.K_q]:
+                            self.start_screen()
+                    #update screen
+                    pygame.display.update()
+                    # check for the return key to unpause the game
                     is_paused = not pygame.key.get_pressed()[pygame.K_RETURN]
+
                 #gets the time
                 end_pause = pygame.time.get_ticks()
                 end_time = pygame.time.get_ticks()
@@ -437,7 +455,7 @@ class Game:
                 total_paused_time = total_paused_time + paused_time
 
             #finds the time that has passed, when not paused
-            net_elapsed_time = elapsed_time - total_paused_time - 3000
+            net_elapsed_time = elapsed_time - total_paused_time - 2500
 
             #prints the time
             ms = int(net_elapsed_time % 1000)
@@ -625,7 +643,7 @@ class Game:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         pygame.quit()
-
+            #end_starting = pygame.time.get_ticks()
             pygame.display.flip()
             pygame.display.update()
 
@@ -634,9 +652,12 @@ class Game:
         pygame.mixer.music.unpause()
         while running:
             screen.fill((105, 228, 146))
-            draw_text(300, 150, 100, (61, 79, 31), screen, 'MENU')
-            draw_text(150, 400, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
-            draw_text(150, 325, 50, (61, 79, 31), screen, 'Press l to see the leaderboard')
+            draw_text(300, 100, 100, (61, 79, 31), screen, 'MENU')
+            draw_text(150, 450, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
+            draw_text(150, 350, 50, (61, 79, 31), screen, 'Press l to see the leaderboard')
+            draw_text(233, 250, 40, (61, 79, 31), screen, 'SOUNDS:          ' + str(sound_volume*10))
+            draw_text(50, 300, 40, (61,79, 31), screen, 'BACKGROUND MUSIC:          ' + str(music_volume*10))
+            #add buttons to increase and decrease sound 
             keys = pygame.key.get_pressed()
             #need to add ability to resume game where it was paused
             for event in pygame.event.get():
@@ -719,6 +740,7 @@ class Game:
             if crashed:
                 screen.fill((228, 76, 76))
             #if the user completes 3 laps, show this screen
+
             else:
                 screen.fill((240, 178, 161))
 
@@ -735,6 +757,13 @@ class Game:
                     #prints lap times
                     draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
 
+
+                #with open ('Lap_Leaderboard.txt', 'r') as file:
+                 #   for i in range (0, 3):
+                  #      result = file.readline()
+                   #     if result[9:] == username:
+                    #        print(result[9:])
+                     #       pass
             #exit game
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
