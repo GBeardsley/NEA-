@@ -118,7 +118,7 @@ class Game:
                 #for menu screen
                 if keys[pygame.K_m]:
                     username = username[:-1]
-                    self.menu_screen(home = True)
+                    self.menu_screen()
                 #for game screen
                 if keys[pygame.K_p]:
                     username = username[:-1]
@@ -637,7 +637,7 @@ class Game:
                     starting = False
                 pygame.display.update()
 
-            if pygame.time.get_ticks() < 4000:
+            if elapsed_time < 4000:
                 screen.blit(start_go, (250, 100))
 
                 for event in pygame.event.get():
@@ -648,25 +648,61 @@ class Game:
             pygame.display.update()
 
     #menu screen
-    def menu_screen(self, home, running = True):
+    def menu_screen(self, running = True):
+        global sound_volume
+        global music_volume
         pygame.mixer.music.unpause()
+        # import and scale the images
+        sound_add = pygame.image.load('add.png')
+        sound_subtract = pygame.image.load('subtract.png')
+        sound_add = pygame.transform.scale(sound_add, (30,30))
+        sound_subtract = pygame.transform.scale(sound_subtract, (30,30))
+        sound_add_rect = sound_add.get_rect()
+        sound_sub_rect = sound_subtract.get_rect()
+        background_add = pygame.image.load('add.png')
+        background_subtract = pygame.image.load('subtract.png')
+        background_add = pygame.transform.scale(background_add, (30, 30))
+        background_subtract = pygame.transform.scale(background_subtract, (30, 30))
+        background_add_rect = sound_add.get_rect()
+        background_sub_rect = sound_subtract.get_rect()
+
         while running:
+            #get the mouse position on the screen
+            mouse_pos = pygame.mouse.get_pos()
+
+            #make the menu screen
             screen.fill((105, 228, 146))
             draw_text(300, 100, 100, (61, 79, 31), screen, 'MENU')
             draw_text(150, 450, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
-            draw_text(150, 350, 50, (61, 79, 31), screen, 'Press l to see the leaderboard')
+            draw_text(150, 350, 50, (61, 79, 31), screen, 'Press L to see the leaderboard')
             draw_text(233, 250, 40, (61, 79, 31), screen, 'SOUNDS:          ' + str(sound_volume*10))
             draw_text(50, 300, 40, (61,79, 31), screen, 'BACKGROUND MUSIC:          ' + str(music_volume*10))
-            #add buttons to increase and decrease sound 
+            #add the sound buttons
+            screen.blit(sound_add, (375,248))
+            screen.blit(background_add, (375, 298))
+            screen.blit(sound_subtract, (505, 248))
+            screen.blit(background_subtract, (505, 298))
+            #add buttons to increase and decrease sound
             keys = pygame.key.get_pressed()
             #need to add ability to resume game where it was paused
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+            #increase/decrease the corresponding volumes depending on which image is pressed
+            if pygame.mouse.get_pressed()[0] and sound_add_rect.collidepoint(mouse_pos):
+                sound_volume += 0.5
+            if pygame.mouse.get_pressed()[0] and sound_sub_rect.collidepoint(mouse_pos):
+                sound_volume -= 0.5
+            if pygame.mouse.get_pressed()[0] and background_add_rect.collidepoint(mouse_pos):
+                music_volume += 0.5
+            if pygame.mouse.get_pressed()[0] and background_sub_rect.collidepoint(mouse_pos):
+                music_volume -= 0.5
 
+            #goes to start screen
             if keys[pygame.K_BACKSPACE]:
                 self.start_screen()
 
+            #goes to leaderboard screen
             if keys[pygame.K_l]:
                 self.leaderboard()
 
@@ -686,6 +722,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
+                if keys[pygame.K_BACKSPACE]:
+                    self.menu_screen()
             #lists for adding times too
             lap_top_scores = 5
             total_top_scores = 5
@@ -725,9 +763,6 @@ class Game:
                 for j in range (total_top_scores):
                     draw_text(450, 250+(j*35), 35, (61, 79, 31), screen, (str(j+1) + ': ' + totals[j]))
 
-            if keys[pygame.K_BACKSPACE]:
-                self.menu_screen(home = True)
-
 
             pygame.display.flip()
             pygame.display.update()
@@ -757,13 +792,6 @@ class Game:
                     #prints lap times
                     draw_text(300, 350 + (i*30), 50, (0,0,0), screen, 'Lap' + str(i+1) + ': ' + lap_times[i])
 
-
-                #with open ('Lap_Leaderboard.txt', 'r') as file:
-                 #   for i in range (0, 3):
-                  #      result = file.readline()
-                   #     if result[9:] == username:
-                    #        print(result[9:])
-                     #       pass
             #exit game
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
