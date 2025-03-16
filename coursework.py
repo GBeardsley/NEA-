@@ -455,7 +455,7 @@ class Game:
                 total_paused_time = total_paused_time + paused_time
 
             #finds the time that has passed, when not paused
-            net_elapsed_time = elapsed_time - total_paused_time - 2500
+            net_elapsed_time = elapsed_time - total_paused_time - 3000
 
             #prints the time
             ms = int(net_elapsed_time % 1000)
@@ -672,6 +672,7 @@ class Game:
 
             #make the menu screen
             screen.fill((105, 228, 146))
+            #draws the text onto the screen
             draw_text(300, 100, 100, (61, 79, 31), screen, 'MENU')
             draw_text(150, 450, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
             draw_text(150, 350, 50, (61, 79, 31), screen, 'Press L to see the leaderboard')
@@ -715,6 +716,7 @@ class Game:
             #colors background and adds text onto screen
             screen.fill((105, 228, 146))
             keys = pygame.key.get_pressed()
+            #draws text onto the screen
             draw_text(130, 100, 100, (61,79, 31), screen, 'LEADERBOARDS')
             draw_text(150, 450, 50, (61,79,31), screen, 'Press BACKSPACE to go back')
             draw_text(100, 200, 40, (61,79,31), screen, 'Best Lap Time:')
@@ -780,6 +782,7 @@ class Game:
                 screen.fill((240, 178, 161))
 
             keys = pygame.key.get_pressed()
+            #text that appears on both game over screens
             draw_text(200, 150, 100, (0, 0, 0), screen, 'GAME OVER')
             draw_text(75, 300, 60, (0, 0, 0), screen, 'Press BACKSPACE to return home')
             draw_text(130, 450, 60, (0,0,0), screen, 'Press ENTER to play again')
