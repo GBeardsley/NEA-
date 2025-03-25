@@ -1,3 +1,4 @@
+#import modules
 import pygame
 from pygame import mixer
 
@@ -17,6 +18,7 @@ lapclock = pygame.time.Clock()
 username = ''
 pygame.mixer.set_num_channels(1)
 
+#sounds
 top_speed_sound = pygame.mixer.Sound('Top speed sound.mp3')
 top_speed_sound.set_volume(sound_volume+0.5)
 accelerate_sound = pygame.mixer.Sound('acceleration sound.mp3')
@@ -27,9 +29,10 @@ crash_sound = pygame.mixer.Sound('crash sound.mp3')
 crash_sound.set_volume(sound_volume + 0.5)
 pygame.mixer.music.load('background.mp3')
 pygame.mixer.music.set_volume(music_volume)
+#loops background sound
 pygame.mixer.music.play(-1)
 
-
+#grass animation images
 grass_1 = pygame.image.load('grass 1.png')
 grass_2 = pygame.image.load('grass 2.png')
 grass_3 = pygame.image.load('grass 3.png')
@@ -37,6 +40,7 @@ grass_4 = pygame.image.load('grass 4.png')
 grass_5 = pygame.image.load('grass 5.png')
 grass_6 = pygame.image.load('grass 6.png')
 
+#gravel animation images
 gravel_1 = pygame.image.load('gravel 1.png')
 gravel_2 = pygame.image.load('gravel 2.png')
 gravel_3 = pygame.image.load('gravel 3.png')
@@ -44,7 +48,7 @@ gravel_4 = pygame.image.load('gravel 4.png')
 gravel_5 = pygame.image.load('gravel 5.png')
 gravel_6 = pygame.image.load('gravel 6.png')
 
-
+#resizing animation images
 grass_animation_imgs = [grass_1, grass_2, grass_3, grass_4, grass_5, grass_6]
 gravel_animation_imgs = [gravel_1, gravel_2, gravel_3, gravel_4, gravel_5, gravel_6]
 for i in range(len(grass_animation_imgs)):
@@ -54,12 +58,13 @@ for i in range(len(gravel_animation_imgs)):
     image = pygame.transform.scale(gravel_animation_imgs[i], (50,50))
     gravel_animation_imgs[i] = image
 
-
+#function to draw text onto screen
 def draw_text(x_pos, y_pos, size, color, surface, message=''):
     font = pygame.font.SysFont(None, size)
     text = font.render(message, True, color)
     surface.blit(text, (x_pos, y_pos))
 
+#game
 class Game:
     def __init__(self):
         #first screen it goes to
@@ -72,6 +77,7 @@ class Game:
         user_input = False
         global username
 
+        #game loop
         while running:
             font = pygame.font.Font(None, 50)
 
@@ -79,6 +85,7 @@ class Game:
             draw_text(150, 100, 100, (61, 79, 31), screen, 'RETRO RACER')
             draw_text(260, 500, 50, (61, 79, 31), screen, 'Press Q to QUIT')
 
+            #checking for events and key presses
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -127,6 +134,7 @@ class Game:
             if keys[pygame.K_q]:
                 pygame.quit()
 
+            #update screen
             pygame.display.flip()
             pygame.display.update()
 
@@ -168,8 +176,7 @@ class Game:
             image = pygame.transform.scale(image, (screen_width, screen_height))
             screen.blit(image, (x + x_position, y + y_position))
 
-
-        # possibly make a function that takes a list of images then prints it one after another (efficency)
+        #function to draw the circuit onto the screen
         def draw_all():
             draw_image(up_straight, 0, 0)
             draw_image(t_three, 0, -600)
@@ -213,8 +220,6 @@ class Game:
             screen.blit(tyre_wall_hori, (x + 1600, y + 2360))
             screen.blit(finish, (x + 175, y + 100))
 
-        #def gravel_animation(iteration):
-
 
         #variables
         x = 0
@@ -235,10 +240,9 @@ class Game:
         prev_speed = 0
         iteration = 0
         starting = True
-        end_starting = 0
 
+        #game loop
         while running:
-
 
             font = pygame.font.Font(None, 30)
             clock.tick(FPS)
@@ -254,26 +258,23 @@ class Game:
                 color_position = (375, 340)
                 accel_y = 0.2
                 direction = 0
-                #accelerate_sound.play()
 
             if keys[pygame.K_s]:
                 color_position = (375, 210)
                 accel_y = -0.2
                 direction = 180
-                #accelerate_sound.play()
 
             if keys[pygame.K_a]:
                 color_position = (440, 275)
                 accel_x = 0.2
                 direction = 90
-                #accelerate_sound.play()
 
             if keys[pygame.K_d]:
                 color_position = (310, 275)
                 accel_x = -0.2
                 direction = 270
-                #accelerate_sound.play()
 
+            #two keys at once - going diagonally
             if keys[pygame.K_w] and keys[pygame.K_d]:
                 direction = 315
                 color_position = (355 - (25 * (2 ** (1 / 2))), 290 + (25 * (2 ** (1 / 2))))
@@ -297,14 +298,6 @@ class Game:
                 color_position = (390 + (25 * (2 ** (1 / 2))), 290 + (25 * (2 ** (1 / 2))))
                 accel_x = 0.2 * ((2 ** (1 / 2)) / 2)
                 accel_y = 0.2 * ((2 ** (1 / 2)) / 2)
-
-            #prints the color at the corresponding position
-            #for testing and usefulness
-            #if keys[pygame.K_e]:
-             #   egts the coordinates of the color position
-              #  color_position = int(color_position[0]), int(color_position[1])
-               # gets the colour at coordinates
-                #print(screen.get_at(color_position))
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -369,7 +362,7 @@ class Game:
                     y = y + 8
                     hit = True
 
-            # add or for diagonals
+            #if the car has crashed
             if hit:
                 #if the car is traveling faster than 3
                 if x_change >= 3 or y_change >= 3 :
@@ -381,7 +374,6 @@ class Game:
                     #calls game over screen
                     self.game_over(lap_times, crashed = True)
 
-            #temporary fix to reverse laps
             finish_rect = finish.get_rect(topleft=(x + 175, y + 200))
             if car_rect.colliderect(finish_rect):
                 if y_change <= 0:
@@ -574,6 +566,7 @@ class Game:
             #converts to a string
             total_speed = str(total_speed)
             prev_speed = int(total_speed)
+            # puts speed and lap information on screen
             speed_text = font.render(('Speed: ' + total_speed), True, (255, 255, 255))
             time_text = font.render(time, True, (255, 255, 255))
             lap_number = font.render(('Lap: ' + str(lap_counter)), True, (255, 0, 0))
@@ -652,23 +645,19 @@ class Game:
         global sound_volume
         global music_volume
         pygame.mixer.music.unpause()
-        # import and scale the images
-        sound_add = pygame.image.load('add.png')
-        sound_subtract = pygame.image.load('subtract.png')
-        sound_add = pygame.transform.scale(sound_add, (30,30))
-        sound_subtract = pygame.transform.scale(sound_subtract, (30,30))
-        sound_add_rect = sound_add.get_rect()
-        sound_sub_rect = sound_subtract.get_rect()
-        background_add = pygame.image.load('add.png')
-        background_subtract = pygame.image.load('subtract.png')
-        background_add = pygame.transform.scale(background_add, (30, 30))
-        background_subtract = pygame.transform.scale(background_subtract, (30, 30))
-        background_add_rect = sound_add.get_rect()
-        background_sub_rect = sound_subtract.get_rect()
+
+        # import and scale the + - images
+        def load_scale_image(image_file, x_pos, y_pos):
+            image = pygame.image.load(image_file)
+            image = pygame.transform.scale(image, (30, 30))
+            screen.blit(image, (x_pos, y_pos))
+            image_rect = image.get_rect()
+            image_rect.center = (x_pos, y_pos)
+            return image, image_rect
 
         while running:
+            pygame.mixer.music.set_volume(music_volume)
             #get the mouse position on the screen
-            mouse_pos = pygame.mouse.get_pos()
 
             #make the menu screen
             screen.fill((105, 228, 146))
@@ -676,28 +665,35 @@ class Game:
             draw_text(300, 100, 100, (61, 79, 31), screen, 'MENU')
             draw_text(150, 450, 50, (61, 79, 31), screen, 'Press BACKSPACE to go back')
             draw_text(150, 350, 50, (61, 79, 31), screen, 'Press L to see the leaderboard')
-            draw_text(233, 250, 40, (61, 79, 31), screen, 'SOUNDS:          ' + str(sound_volume*10))
-            draw_text(50, 300, 40, (61,79, 31), screen, 'BACKGROUND MUSIC:          ' + str(music_volume*10))
+            draw_text(233, 250, 40, (61, 79, 31), screen, 'SOUNDS:          ' + str(sound_volume))
+            draw_text(50, 300, 40, (61,79, 31), screen, 'BACKGROUND MUSIC:          ' + str(music_volume))
             #add the sound buttons
-            screen.blit(sound_add, (375,248))
-            screen.blit(background_add, (375, 298))
-            screen.blit(sound_subtract, (505, 248))
-            screen.blit(background_subtract, (505, 298))
-            #add buttons to increase and decrease sound
+
+            # load + - images to screen
+            sound_add, sound_add_rect = load_scale_image('add.png', 375, 248)
+            sound_sub, sound_sub_rect = load_scale_image('subtract.png', 505, 248)
+            background_add, background_add_rect = load_scale_image('add.png', 375, 298)
+            background_sub, background_sub_rect = load_scale_image('subtract.png', 505, 298)
+
             keys = pygame.key.get_pressed()
             #need to add ability to resume game where it was paused
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
             #increase/decrease the corresponding volumes depending on which image is pressed
-            if pygame.mouse.get_pressed()[0] and sound_add_rect.collidepoint(mouse_pos):
-                sound_volume += 0.5
-            if pygame.mouse.get_pressed()[0] and sound_sub_rect.collidepoint(mouse_pos):
-                sound_volume -= 0.5
-            if pygame.mouse.get_pressed()[0] and background_add_rect.collidepoint(mouse_pos):
-                music_volume += 0.5
-            if pygame.mouse.get_pressed()[0] and background_sub_rect.collidepoint(mouse_pos):
-                music_volume -= 0.5
+                if event.type == pygame.MOUSEBUTTONDOWN:  # Detects a single mouse click
+                    mouse_pos = pygame.mouse.get_pos()
+                    if sound_volume > 1 or sound_volume < 0:
+                        pass
+                    else:
+                        if sound_add_rect.collidepoint(mouse_pos):
+                            sound_volume += 0.1
+                        if sound_sub_rect.collidepoint(mouse_pos):
+                            sound_volume -= 0.1
+                        if background_add_rect.collidepoint(mouse_pos):
+                            music_volume += 0.1
+                        if background_sub_rect.collidepoint(mouse_pos):
+                            music_volume -= 0.1
 
             #goes to start screen
             if keys[pygame.K_BACKSPACE]:
@@ -805,7 +801,7 @@ class Game:
             if keys[pygame.K_RETURN]:
                 self.playing_screen()
 
-
+            #update screen
             pygame.display.flip()
             pygame.display.update()
 
